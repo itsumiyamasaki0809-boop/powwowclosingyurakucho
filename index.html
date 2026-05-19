@@ -28,7 +28,7 @@
         .discount-highlight { color: #E53E3E; font-weight: 900; font-size: 1.3em; display: inline-block; position: relative; z-index: 1; padding: 0 4px; }
         .discount-highlight::before { content: ''; position: absolute; left: 0; bottom: 2px; width: 100%; height: 60%; background-color: #FFF176; z-index: -1; transform: rotate(-1deg); opacity: 0.8; border-radius: 2px; }
         .toggle-section { transition: opacity 0.3s ease, transform 0.3s ease; }
-        #qr-container-A img, #qr-container-B img { margin: 0 auto; }
+        #qr-container-A img, #qr-container-B img, #qr-container-C img { margin: 0 auto; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -164,22 +164,29 @@
                     <div class="flex items-center gap-2 mb-3">
                         <span class="text-sm font-bold text-[#E98B9F]">サブスク条件設定</span>
                     </div>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-[#8E5E65] mb-1">平日の来店時間制限</label>
                             <select id="settingTime" onchange="recalcSubs()" class="w-full bg-white border border-pink-200 rounded-lg p-2 text-sm"><option value="12">12時</option><option value="13">13時</option><option value="14">14時</option><option value="15">15時</option><option value="16" selected>16時</option><option value="17">17時</option><option value="18">18時</option><option value="19">19時</option><option value="20">20時</option></select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-[#8E5E65] mb-1.5">月1回 割引率</label>
+                            <label class="block text-xs font-bold text-[#8E5E65] mb-1.5">月2回 平日限定 割引率</label>
                             <div class="flex items-center gap-1">
-                                <input type="number" id="settingDiscount1" value="15" onchange="recalcSubs()" class="w-full bg-white border border-pink-200 rounded-lg px-3 py-2 text-sm">
+                                <input type="number" id="settingDiscount2" value="30" onchange="recalcSubs()" class="w-full bg-white border border-pink-200 rounded-lg px-3 py-2 text-sm">
                                 <span class="text-sm text-[#8E5E65] font-bold">%</span>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-[#8E5E65] mb-1.5">月2回 割引率</label>
+                            <label class="block text-xs font-bold text-[#8E5E65] mb-1.5">月2回 ALLDAY 割引率</label>
                             <div class="flex items-center gap-1">
-                                <input type="number" id="settingDiscount2" value="30" onchange="recalcSubs()" class="w-full bg-white border border-pink-200 rounded-lg px-3 py-2 text-sm">
+                                <input type="number" id="settingDiscountC" value="20" onchange="recalcSubs()" class="w-full bg-white border border-pink-200 rounded-lg px-3 py-2 text-sm">
+                                <span class="text-sm text-[#8E5E65] font-bold">%</span>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-[#8E5E65] mb-1.5">月1回 ALLDAY 割引率</label>
+                            <div class="flex items-center gap-1">
+                                <input type="number" id="settingDiscount1" value="15" onchange="recalcSubs()" class="w-full bg-white border border-pink-200 rounded-lg px-3 py-2 text-sm">
                                 <span class="text-sm text-[#8E5E65] font-bold">%</span>
                             </div>
                         </div>
@@ -298,11 +305,6 @@
                                 <p class="text-[11px] text-[#8E5E65] leading-relaxed font-medium">最大限の結果を出したい方の贅沢プラン♪</p>
                             </div>
                         </div>
-                        <div class="text-center mb-6">
-                            <span class="inline-block bg-pink-50 text-[#E98B9F] text-xs font-bold px-4 py-1.5 rounded-full border border-pink-100">
-                                平日<span id="subsTimeLabel">16</span>時までのご来店で
-                            </span>
-                        </div>
                         <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-start gap-3 shadow-sm">
                             <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
                             <div class="text-xs sm:text-sm text-amber-900 leading-relaxed font-medium space-y-1">
@@ -310,33 +312,62 @@
                                 <p>※オイルと組み合わせの場合は施術時間が10分短くなります。</p>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
+                            <!-- 月2回 平日16時まで限定 30% OFF -->
                             <div class="border-2 border-[#E98B9F] rounded-3xl p-6 text-center bg-white shadow-sm flex flex-col">
-                                <div class="bg-[#E98B9F] text-white text-[10px] font-bold py-1 px-4 rounded-full w-fit mx-auto -mt-9 mb-6 shadow-sm">断然おすすめ！</div>
+                                <div class="bg-[#E98B9F] text-white text-[10px] font-bold py-1 px-4 rounded-full w-fit mx-auto -mt-9 mb-3 shadow-sm">断然おすすめ！</div>
                                 <h5 class="font-bold text-lg mb-2">月2回プラン</h5>
+                                <div class="inline-block bg-pink-50 text-[#E98B9F] text-xs font-bold px-3 py-1 rounded-full border border-pink-100 mb-3">
+                                    平日<span class="subsTimeDisplay">16</span>時まで限定
+                                </div>
                                 <p class="text-xs text-gray-400 mb-1 line-through"><span id="subsBaseA">12,160</span>円/回</p>
                                 <div class="text-4xl font-black text-[#E98B9F] mb-3"><span id="subsPriceA">8,512</span><span class="text-sm">円/回</span></div>
                                 <div class="text-[#E53E3E] font-black text-xl bg-[#FFF5F7] py-2 mb-4 rounded-lg border border-pink-50 shadow-sm mx-2"><span id="subsDiscountALabel">30</span>% OFF</div>
-                                <div class="bg-[#FFF5F7] p-3 rounded-xl mb-6">
+                                <div class="bg-[#FFF5F7] p-3 rounded-xl mb-4">
                                     <div class="text-[10px] text-gray-500">月額合計</div>
                                     <div class="text-xl font-bold"><span id="subsTotalA">17,024</span>円</div>
                                 </div>
-                                <div class="mt-auto border-t border-dashed border-pink-100 pt-6">
+                                <div class="mt-auto border-t border-dashed border-pink-100 pt-4">
                                     <p class="text-xs font-bold text-gray-400 mb-3">＼こちらからお申し込み／</p>
                                     <div id="qr-container-A" class="bg-white p-2 inline-block border border-gray-100 rounded-lg shadow-inner mb-2"></div>
                                     <div class="text-[9px] text-gray-300 break-all px-4" id="url-text-A"></div>
                                 </div>
                             </div>
+                            <!-- 月2回 ALLDAY 20% OFF -->
+                            <div class="border-2 border-[#5BA4A4] rounded-3xl p-6 text-center bg-white shadow-sm flex flex-col">
+                                <div class="bg-[#5BA4A4] text-white text-[10px] font-bold py-1 px-4 rounded-full w-fit mx-auto -mt-9 mb-3 shadow-sm">ALL DAY</div>
+                                <h5 class="font-bold text-lg mb-2">月2回プラン</h5>
+                                <div class="inline-block bg-teal-50 text-teal-700 text-xs font-bold px-3 py-1 rounded-full border border-teal-100 mb-3">
+                                    時間・曜日を問わず
+                                </div>
+                                <p class="text-xs text-gray-400 mb-1 line-through"><span id="subsBaseC">12,160</span>円/回</p>
+                                <div class="text-4xl font-black text-[#5BA4A4] mb-3"><span id="subsPriceC">9,728</span><span class="text-sm">円/回</span></div>
+                                <div class="text-[#E53E3E] font-black text-xl bg-[#FFF5F7] py-2 mb-4 rounded-lg border border-pink-50 shadow-sm mx-2"><span id="subsDiscountCLabel">20</span>% OFF</div>
+                                <div class="bg-[#FFF5F7] p-3 rounded-xl mb-4">
+                                    <div class="text-[10px] text-gray-500">月額合計</div>
+                                    <div class="text-xl font-bold"><span id="subsTotalC">19,456</span>円</div>
+                                </div>
+                                <div class="mt-auto border-t border-dashed border-teal-100 pt-4">
+                                    <p class="text-xs font-bold text-gray-400 mb-3">＼こちらからお申し込み／</p>
+                                    <div id="qr-container-C" class="bg-white p-2 inline-block border border-gray-100 rounded-lg shadow-inner mb-2"></div>
+                                    <div class="text-[9px] text-gray-300 break-all px-4" id="url-text-C"></div>
+                                </div>
+                            </div>
+                            <!-- 月1回 ALLDAY 15% OFF -->
                             <div class="border border-pink-100 rounded-3xl p-6 text-center bg-white shadow-sm flex flex-col">
+                                <div class="bg-[#5BA4A4] text-white text-[10px] font-bold py-1 px-4 rounded-full w-fit mx-auto -mt-9 mb-3 shadow-sm">ALL DAY</div>
                                 <h5 class="font-bold text-lg mb-2">月1回プラン</h5>
+                                <div class="inline-block bg-teal-50 text-teal-700 text-xs font-bold px-3 py-1 rounded-full border border-teal-100 mb-3">
+                                    時間・曜日を問わず
+                                </div>
                                 <p class="text-xs text-gray-400 mb-1 line-through"><span id="subsBaseB">12,160</span>円/回</p>
                                 <div class="text-4xl font-black text-[#E98B9F] mb-3"><span id="subsPriceB">10,336</span><span class="text-sm">円/回</span></div>
                                 <div class="text-[#E53E3E] font-black text-xl bg-[#FFF5F7] py-2 mb-4 rounded-lg border border-pink-50 shadow-sm mx-2"><span id="subsDiscountBLabel">15</span>% OFF</div>
-                                <div class="bg-[#FFF5F7] p-3 rounded-xl mb-6">
+                                <div class="bg-[#FFF5F7] p-3 rounded-xl mb-4">
                                     <div class="text-[10px] text-gray-500">月額合計</div>
                                     <div class="text-xl font-bold"><span id="subsTotalB">10,336</span>円</div>
                                 </div>
-                                <div class="mt-auto border-t border-dashed border-pink-100 pt-6">
+                                <div class="mt-auto border-t border-dashed border-pink-100 pt-4">
                                     <p class="text-xs font-bold text-gray-400 mb-3">＼こちらからお申し込み／</p>
                                     <div id="qr-container-B" class="bg-white p-2 inline-block border border-gray-100 rounded-lg shadow-inner mb-2"></div>
                                     <div class="text-[9px] text-gray-300 break-all px-4" id="url-text-B"></div>
@@ -353,24 +384,30 @@
         const PRICES = { 50: 7600, 80: 12160, 110: 16720 };
         const COURSE_NAMES = { 50: "ライト", 80: "スタンダード", 110: "スペシャル" };
         const LINKS = {
-            A: {
+            A: { // 月2回 平日16時まで限定 30% OFF
                 50:  "https://web.online.airpayment.jp/payment?planId=PL7etMue85iCL12DIC",
                 80:  "https://web.online.airpayment.jp/payment?planId=PLDH8bEhe7KaH4Qysv",
                 110: "https://web.online.airpayment.jp/payment?planId=PLXOrDYMliTDofXKGR"
             },
-            B: {
-                50:  "https://web.online.airpayment.jp/payment?planId=PLFPgp8mfN0oHYtd1M",
-                80:  "https://web.online.airpayment.jp/payment?planId=PL3NxnYpV7VDTf6Ok6",
-                110: "https://web.online.airpayment.jp/payment?planId=PL3b7JRPnJcZ4SHXA6"
+            C: { // 月2回 ALLDAY 20% OFF
+                50:  "https://web.online.airpayment.jp/payment?planId=PLq9xwOKfJ7Vd1JwCm",
+                80:  "https://web.online.airpayment.jp/payment?planId=PLE7NN9YujLwmeETiA",
+                110: "https://web.online.airpayment.jp/payment?planId=PLfg3MP3oEIaqpPdAR"
+            },
+            B: { // 月1回 ALLDAY 15% OFF
+                50:  "https://web.online.airpayment.jp/payment?planId=PLCg7kJ4nmlmAiXk8K",
+                80:  "https://web.online.airpayment.jp/payment?planId=PLCg7kJ4nmlmAiXk8K",
+                110: "https://web.online.airpayment.jp/payment?planId=PLEYIgH98SXNwscyOH"
             }
         };
 
         let currentCourse = 80;
-        let qrA, qrB;
+        let qrA, qrB, qrC;
 
         window.onload = () => {
             qrA = new QRCode(document.getElementById("qr-container-A"), { width: 120, height: 120 });
             qrB = new QRCode(document.getElementById("qr-container-B"), { width: 120, height: 120 });
+            qrC = new QRCode(document.getElementById("qr-container-C"), { width: 120, height: 120 });
             selectCourse(80);
             updatePhase(0);
         };
@@ -410,12 +447,15 @@
             const time = document.getElementById('settingTime')?.value || 16;
             const discount1 = parseInt(document.getElementById('settingDiscount1')?.value || 15);
             const discount2 = parseInt(document.getElementById('settingDiscount2')?.value || 30);
+            const discountC = parseInt(document.getElementById('settingDiscountC')?.value || 20);
 
             document.getElementById('subsCourseLabel').innerText = `${courseName} ${currentCourse}`;
-            if(document.getElementById('subsTimeLabel')) document.getElementById('subsTimeLabel').innerText = time;
+            document.querySelectorAll('.subsTimeDisplay').forEach(el => el.innerText = time);
             if(document.getElementById('subsDiscountALabel')) document.getElementById('subsDiscountALabel').innerText = discount2;
             if(document.getElementById('subsDiscountBLabel')) document.getElementById('subsDiscountBLabel').innerText = discount1;
+            if(document.getElementById('subsDiscountCLabel')) document.getElementById('subsDiscountCLabel').innerText = discountC;
 
+            // Card A: 月2回 平日16時まで限定 30% OFF
             const priceA = Math.floor(base * (1 - discount2 / 100));
             document.getElementById('subsBaseA').innerText = base.toLocaleString();
             document.getElementById('subsPriceA').innerText = priceA.toLocaleString();
@@ -424,6 +464,16 @@
             qrA.makeCode(urlA);
             document.getElementById('url-text-A').innerText = urlA;
 
+            // Card C: 月2回 ALLDAY 20% OFF
+            const priceC = Math.floor(base * (1 - discountC / 100));
+            document.getElementById('subsBaseC').innerText = base.toLocaleString();
+            document.getElementById('subsPriceC').innerText = priceC.toLocaleString();
+            document.getElementById('subsTotalC').innerText = (priceC * 2).toLocaleString();
+            const urlC = LINKS.C[currentCourse];
+            qrC.makeCode(urlC);
+            document.getElementById('url-text-C').innerText = urlC;
+
+            // Card B: 月1回 ALLDAY 15% OFF
             const priceB = Math.floor(base * (1 - discount1 / 100));
             document.getElementById('subsBaseB').innerText = base.toLocaleString();
             document.getElementById('subsPriceB').innerText = priceB.toLocaleString();
