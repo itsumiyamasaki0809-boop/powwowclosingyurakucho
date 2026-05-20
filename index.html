@@ -3,532 +3,1442 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>POWWOW - コース案内＆料金プラン</title>
+    <title>パウワウ店舗ダッシュボード - WHC人事評価・日報自動連携</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <style>
-        html { font-size: 16px; transition: font-size 0.3s ease; }
-        body { font-family: 'Noto Sans JP', sans-serif; background-color: #FFF5F7; color: #5D4037; }
-        .phase-card { transition: all 0.3s ease; border-left: 4px solid transparent; }
-        .phase-card:hover { background-color: #FFF0F3; }
-        .phase-card.active-phase { border-left: 6px solid #F4A6B6; background-color: #FFF; box-shadow: 0 4px 10px rgba(244, 166, 182, 0.2); }
-        .step-badge { font-size: 0.7rem; padding: 2px 8px; border-radius: 9999px; background-color: #F3E5E9; color: #8E5E65; }
-        .active-phase .step-badge { background-color: #F4A6B6; color: white; }
-        .pricing-card { transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1); opacity: 1; transform: translateY(0); }
-        .pricing-card:hover { transform: translateY(-4px); box-shadow: 0 12px 28px rgba(233, 139, 159, 0.2); }
-        .settings-panel { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.3s ease; opacity: 0; }
-        .settings-panel.open { max-height: 400px; opacity: 1; padding-bottom: 1.5rem; }
-        .settings-gear { transition: transform 0.3s ease; }
-        .settings-gear.active { transform: rotate(90deg); }
-        .subs-plan { transition: all 0.3s ease; }
-        .subs-plan:hover { transform: translateY(-3px); }
-        @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
-        .course-guide-active { border-color: #F4A6B6 !important; background-color: #FFF9FA !important; }
-        .discount-highlight { color: #E53E3E; font-weight: 900; font-size: 1.3em; display: inline-block; position: relative; z-index: 1; padding: 0 4px; }
-        .discount-highlight::before { content: ''; position: absolute; left: 0; bottom: 2px; width: 100%; height: 60%; background-color: #FFF176; z-index: -1; transform: rotate(-1deg); opacity: 0.8; border-radius: 2px; }
-        .toggle-section { transition: opacity 0.3s ease, transform 0.3s ease; }
-        #qr-container-A img, #qr-container-B img, #qr-container-C img { margin: 0 auto; }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col">
-
-    <header class="bg-white/80 backdrop-blur-md shadow-sm py-3 sticky top-0 z-50 border-b border-pink-100">
-        <div class="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-3 md:gap-0">
-            <div class="flex justify-between items-center w-full md:w-auto">
-                <a href="#" class="flex items-center gap-2">
-                    <img src="logo.png" alt="POWWOW" class="h-20 object-contain" onerror="this.style.display='none';this.nextElementSibling.style.display='block';">
-                    <h1 class="text-4xl font-bold tracking-widest text-[#E98B9F]" style="display:none;">POWWOW</h1>
-                </a>
-            </div>
-            <div class="flex items-center gap-4 w-full md:w-auto justify-between md:justify-end">
-                <div class="flex items-center gap-1 bg-[#FFF5F7] p-1 rounded-lg border border-pink-100">
-                    <span class="text-xs font-bold text-[#8E5E65] px-2 hidden sm:inline">文字サイズ</span>
-                    <span class="text-xs font-bold text-[#8E5E65] px-2 sm:hidden">文字</span>
-                    <button onclick="changeFontSize('16px', 0)" class="font-size-btn px-3 py-1 bg-white text-[#E98B9F] shadow-sm rounded text-xs font-bold transition-all border border-pink-200">標準</button>
-                    <button onclick="changeFontSize('18px', 1)" class="font-size-btn px-3 py-1 text-[#8E5E65] hover:bg-pink-50 rounded text-sm font-bold transition-all border border-transparent">大</button>
-                    <button onclick="changeFontSize('20px', 2)" class="font-size-btn px-3 py-1 text-[#8E5E65] hover:bg-pink-50 rounded text-base font-bold transition-all border border-transparent">特大</button>
-                </div>
-                <nav class="hidden md:flex space-x-6 text-sm text-[#8E5E65]">
-                    <a href="#roadmap" class="hover:text-[#F4A6B6] transition py-2 px-1">施術ロードマップ</a>
-                    <a href="#pricing" class="hover:text-[#F4A6B6] transition py-2 px-1">料金プラン</a>
-                </nav>
-            </div>
-        </div>
-    </header>
-
-    <main class="flex-grow container mx-auto px-4 py-8 space-y-12">
-        <section class="text-center max-w-3xl mx-auto mt-6">
-            <h2 class="text-2xl md:text-3xl font-light mb-6 text-[#5D4037] leading-relaxed">
-                女性の「なんとなく不調」は<br class="md:hidden">仙骨の歪み、自律神経、女性ホルモンや<br>気温・気圧の変化など<br class="md:hidden">さまざまな要因から引き起こされます。
-            </h2>
-            <p class="text-[#8E5E65] leading-relaxed">
-                パウワウではそんな女性に寄り添い、<br>
-                「今」必要なケアと適切なペースをご提案します。
-            </p>
-        </section>
-
-        <section id="roadmap" class="bg-white rounded-3xl p-6 lg:p-8 shadow-md border border-pink-100">
-            <div class="mb-6 border-b border-pink-100 pb-4">
-                <h3 class="text-xl font-bold text-[#E98B9F] flex items-center gap-2">
-                    <span class="text-2xl">01</span> 施術サイクルとホルモンバランス
-                </h3>
-                <p class="text-sm text-gray-500 mt-2">
-                    理想的な来店ペースと、女性ホルモンの波（月経・排卵周期）との関係を確認しましょう。
-                </p>
-            </div>
-
-            <div class="grid lg:grid-cols-12 gap-8 items-start">
-                <div class="lg:col-span-4 space-y-4">
-                    <button onclick="updatePhase(0)" id="btn-phase-1" class="phase-card w-full text-left p-4 rounded-xl border border-pink-50 hover:border-pink-200 transition active-phase">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="step-badge">1ヶ月目</span>
-                            <span class="text-xs font-bold text-[#E98B9F]">Step 1</span>
-                        </div>
-                        <h4 class="font-bold text-lg text-[#5D4037]">土台期</h4>
-                        <p id="card-desc-0" class="text-xs text-gray-500 mt-1">まずは凝りをほぐして土台の仙骨を整える時期</p>
-                        <div class="mt-2 text-xs font-bold text-[#F4A6B6] bg-[#FFF5F7] inline-block px-2 py-1 rounded">来店目安: 週に1回</div>
-                    </button>
-
-                    <button onclick="updatePhase(1)" id="btn-phase-2" class="phase-card w-full text-left p-4 rounded-xl border border-pink-50 hover:border-pink-200 transition">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="step-badge">2〜3ヶ月目</span>
-                            <span class="text-xs font-bold text-[#E98B9F]">Step 2</span>
-                        </div>
-                        <h4 class="font-bold text-lg text-[#5D4037]">調整期</h4>
-                        <p id="card-desc-1" class="text-xs text-gray-500 mt-1">整えた土台を調節して定着させる時期</p>
-                        <div class="mt-2 text-xs font-bold text-[#F4A6B6] bg-[#FFF5F7] inline-block px-2 py-1 rounded">来店目安: 月に2回</div>
-                    </button>
-
-                    <button onclick="updatePhase(2)" id="btn-phase-3" class="phase-card w-full text-left p-4 rounded-xl border border-pink-50 hover:border-pink-200 transition">
-                        <div class="flex justify-between items-center mb-1">
-                            <span class="step-badge">4ヶ月目〜</span>
-                            <span class="text-xs font-bold text-[#E98B9F]">Step 3</span>
-                        </div>
-                        <h4 class="font-bold text-lg text-[#5D4037]">メンテナンス期</h4>
-                        <p id="card-desc-2" class="text-xs text-gray-500 mt-1">整えて定着した後に定期的にメンテナンスをする時期</p>
-                        <div class="mt-2 text-xs font-bold text-[#F4A6B6] bg-[#FFF5F7] inline-block px-2 py-1 rounded">来店目安: 月に1回</div>
-                    </button>
-                </div>
-
-                <div class="lg:col-span-8 flex flex-col h-full">
-                    <div class="bg-white rounded-xl p-2 mb-4 relative">
-                        <img src="スクリーンショット 2026-03-21 163709.png" alt="施術サイクルとホルモンバランス" class="w-full h-auto rounded-lg shadow-sm border border-pink-50" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                        <div class="hidden items-center justify-center w-full h-64 bg-gray-50 text-gray-400 rounded-lg border border-dashed border-gray-200 text-sm">
-                            <div class="text-center"><p>画像が見つかりません</p></div>
-                        </div>
-                    </div>
-
-                    <div id="phase-detail-content" class="bg-[#FFF5F7] p-5 rounded-xl border-l-4 border-[#F4A6B6] flex-grow shadow-inner">
-                        <div class="mb-3">
-                            <h4 id="detail-title" class="font-bold text-lg text-[#5D4037]">土台期</h4>
-                            <p id="detail-text" class="text-sm text-[#8E5E65] mt-2 leading-relaxed"></p>
-                        </div>
-                        <div class="border-t border-dashed border-pink-200 pt-3">
-                            <div class="flex items-start gap-3">
-                                <span class="bg-[#F4A6B6] text-white text-xs font-bold px-2 py-1 rounded mt-1 whitespace-nowrap">Point</span>
-                                <p id="detail-point" class="text-sm text-[#5D4037]"></p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- 月経前オイルおすすめ文言 -->
-                    <div class="mt-4 flex items-start gap-3 bg-pink-50 border border-pink-200 rounded-xl p-4 shadow-sm">
-                        <span class="text-xl leading-none mt-0.5">🌸</span>
-                        <p class="text-sm text-[#8E5E65] leading-relaxed font-medium">
-                            月経前は女性ホルモンの影響で身体がむくみやすいため<span class="font-bold text-[#E98B9F]">オイルの追加がオススメ</span>です。
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <section id="pricing" class="bg-white rounded-3xl p-6 lg:p-8 shadow-md border border-pink-100 relative">
-            <div class="mb-6 border-b border-pink-100 pb-4 flex justify-between items-center">
-                <div>
-                    <h3 class="text-xl font-bold text-[#E98B9F] flex items-center gap-2">
-                        <span class="text-2xl">02</span> 料金プラン・パッケージのご案内
-                    </h3>
-                    <p class="text-sm text-gray-500 mt-2">新規のお客様から継続ケアまで、最適なプランをご提案します。</p>
-                </div>
-                <button onclick="toggleSettings()" class="bg-[#FFF5F7] hover:bg-[#FFE8EE] active:bg-[#FFD6E0] border border-pink-200 rounded-xl w-11 h-11 flex items-center justify-center text-[#E98B9F] transition-all duration-200" title="サブスクの条件設定">
-                    <svg class="w-5 h-5 transition-transform duration-300 settings-gear" id="settingsGear" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
-                </button>
-            </div>
-
-            <div id="settingsPanel" class="settings-panel bg-[#FFF5F7] rounded-2xl border border-pink-100 mb-6 mt-4">
-                <div class="p-5">
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-sm font-bold text-[#E98B9F]">サブスク条件設定</span>
-                    </div>
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-[#8E5E65] mb-1">平日の来店時間制限</label>
-                            <select id="settingTime" onchange="recalcSubs()" class="w-full bg-white border border-pink-200 rounded-lg p-2 text-sm"><option value="12">12時</option><option value="13">13時</option><option value="14">14時</option><option value="15">15時</option><option value="16" selected>16時</option><option value="17">17時</option><option value="18">18時</option><option value="19">19時</option><option value="20">20時</option></select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-[#8E5E65] mb-1.5">月2回 平日限定 割引率</label>
-                            <div class="flex items-center gap-1">
-                                <input type="number" id="settingDiscount2" value="30" onchange="recalcSubs()" class="w-full bg-white border border-pink-200 rounded-lg px-3 py-2 text-sm">
-                                <span class="text-sm text-[#8E5E65] font-bold">%</span>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-[#8E5E65] mb-1.5">月2回 ALLDAY 割引率</label>
-                            <div class="flex items-center gap-1">
-                                <input type="number" id="settingDiscountC" value="20" onchange="recalcSubs()" class="w-full bg-white border border-pink-200 rounded-lg px-3 py-2 text-sm">
-                                <span class="text-sm text-[#8E5E65] font-bold">%</span>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-[#8E5E65] mb-1.5">月1回 ALLDAY 割引率</label>
-                            <div class="flex items-center gap-1">
-                                <input type="number" id="settingDiscount1" value="15" onchange="recalcSubs()" class="w-full bg-white border border-pink-200 rounded-lg px-3 py-2 text-sm">
-                                <span class="text-sm text-[#8E5E65] font-bold">%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mb-8 bg-[#FFF5F7] p-4 rounded-xl border border-pink-100 flex flex-wrap items-center gap-x-6 gap-y-3">
-                <span class="text-sm font-bold text-[#5D4037] flex items-center">
-                    <svg class="w-4 h-4 mr-1 text-[#E98B9F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                    表示するプランを選択
-                </span>
-                <label class="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked onchange="toggleVisibility('section-ticket', this.checked)" class="w-5 h-5 accent-[#E98B9F] cursor-pointer">
-                    <span class="text-sm font-medium text-[#8E5E65] group-hover:text-[#E98B9F] transition-colors">回数券</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked onchange="toggleVisibility('section-prepaid', this.checked)" class="w-5 h-5 accent-[#E98B9F] cursor-pointer">
-                    <span class="text-sm font-medium text-[#8E5E65] group-hover:text-[#E98B9F] transition-colors">プリペイド</span>
-                </label>
-                <label class="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" checked onchange="toggleVisibility('section-subs', this.checked)" class="w-5 h-5 accent-[#E98B9F] cursor-pointer">
-                    <span class="text-sm font-medium text-[#8E5E65] group-hover:text-[#E98B9F] transition-colors">サブスクリプション</span>
-                </label>
-            </div>
-
-            <div id="section-ticket" class="mb-12 toggle-section">
-                <h4 class="text-lg font-bold text-[#5D4037] border-b-2 border-[#F4A6B6] pb-2 mb-6 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#E98B9F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"></path></svg>
-                    回数券パッケージ
-                </h4>
-                <div class="bg-white border border-[#F4A6B6] rounded-2xl p-6 shadow-sm max-w-2xl mx-auto text-center relative">
-                    <div class="absolute top-0 right-0 bg-[#FFF5F7] text-[#E98B9F] text-xs font-bold px-4 py-1.5 rounded-bl-xl border-b border-l border-pink-100">※有効期限2カ月間</div>
-                    <span class="inline-block bg-[#F4A6B6] text-white font-bold px-4 py-1 rounded-full text-sm mb-4 mt-2">土台期応援プラン 70分整体3回券</span>
-                    <div class="bg-[#FFF5F7] p-6 rounded-2xl mb-6 relative">
-                        <div class="absolute -top-3 -right-2 bg-[#E53E3E] text-white text-xs font-bold px-3 py-1 rounded-full transform rotate-12 shadow-sm">15% OFF</div>
-                        <div class="text-sm text-gray-500 line-through">通常 31,920円</div>
-                        <div class="text-4xl font-black text-[#E98B9F] my-2">27,000<span class="text-xl">円</span></div>
-                        <div class="text-[#E53E3E] font-bold text-sm">4,920円もおトク！</div>
-                    </div>
-                    <div class="flex justify-center items-center gap-2 text-xs text-[#8E5E65] overflow-x-auto pb-2">
-                        <div class="bg-white border p-2 rounded-lg min-w-[70px]">初回</div>
-                        <svg class="w-4 h-4 text-pink-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                        <div class="bg-white border p-2 rounded-lg min-w-[70px]">1週間後<br>2回目</div>
-                        <svg class="w-4 h-4 text-pink-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                        <div class="bg-white border p-2 rounded-lg min-w-[70px]">2週間後<br>3回目</div>
-                        <svg class="w-4 h-4 text-pink-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                        <div class="bg-white border p-2 rounded-lg min-w-[70px]">3週間後<br>4回目</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="section-prepaid" class="mb-12 toggle-section">
-                <h4 class="text-lg font-bold text-[#5D4037] border-b-2 border-[#F4A6B6] pb-2 mb-6 flex items-center gap-2">
-                    <svg class="w-5 h-5 text-[#E98B9F]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-                    プリペイド
-                </h4>
-                <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-4">
-                    <p class="text-sm text-gray-500">その日の気分や体調に合わせてコースを選びたい方に。</p>
-                    <span class="inline-block w-fit text-xs font-bold text-[#E98B9F] bg-[#FFF5F7] px-3 py-1.5 rounded-full border border-pink-100 shadow-sm">※有効期限半年</span>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white border border-pink-100 p-6 rounded-2xl text-center">
-                        <div class="text-xs font-bold text-gray-400 mb-1">販売価格</div>
-                        <div class="text-2xl font-bold mb-4">30,000円</div>
-                        <div class="text-sm font-bold text-[#8E5E65] mb-2">プリペイド支払いで</div>
-                        <div class="bg-red-50 text-red-500 font-bold py-2 rounded-lg">施術代 5% OFF</div>
-                    </div>
-                    <div class="bg-white border-2 border-[#F4A6B6] p-6 rounded-2xl text-center relative transform md:scale-105 shadow-md">
-                        <div class="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#F4A6B6] text-white text-[10px] px-3 py-1 rounded-full">一番人気</div>
-                        <div class="text-xs font-bold text-gray-400 mb-1 mt-1">販売価格</div>
-                        <div class="text-2xl font-bold mb-4">50,000円</div>
-                        <div class="text-sm font-bold text-[#8E5E65] mb-2">プリペイド支払いで</div>
-                        <div class="bg-red-50 text-red-500 font-bold py-2 rounded-lg">施術代 10% OFF</div>
-                    </div>
-                    <div class="bg-white border border-pink-100 p-6 rounded-2xl text-center">
-                        <div class="text-xs font-bold text-gray-400 mb-1">販売価格</div>
-                        <div class="text-2xl font-bold mb-4">100,000円</div>
-                        <div class="text-sm font-bold text-[#8E5E65] mb-2">プリペイド支払いで</div>
-                        <div class="bg-red-50 text-red-500 font-bold py-2 rounded-lg">施術代 15% OFF</div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="section-subs" class="toggle-section">
-                <div class="text-center mb-8">
-                    <div class="inline-block bg-[#E98B9F] text-white font-bold px-8 py-3 rounded-full shadow-lg animate-bounce">
-                        一番お得に通える！定額プラン
-                    </div>
-                </div>
-                <div class="bg-white rounded-3xl overflow-hidden border border-pink-100 shadow-xl">
-                    <div class="bg-gradient-to-r from-[#E98B9F] to-[#D47A8D] p-5 text-white text-center">
-                        <h4 class="text-xl font-bold">サブスク（月額定額プラン）</h4>
-                        <p class="text-sm opacity-90 mt-1"><span id="subsCourseLabel">スタンダード 80</span>分整体コース</p>
-                    </div>
-                    <div class="p-6">
-                        <div class="flex bg-[#FFF5F7] rounded-full p-1 mb-6 max-w-md mx-auto border border-pink-100 relative">
-                            <button onclick="selectCourse(50)" id="btn-50" class="flex-1 py-2 rounded-full text-sm font-bold transition-all relative">ライト 50分</button>
-                            <button onclick="selectCourse(80)" id="btn-80" class="flex-1 py-2 rounded-full text-sm font-bold transition-all relative">
-                                スタンダード 80分
-                                <span class="absolute -top-3 -right-2 bg-amber-400 text-white text-[10px] px-2 py-0.5 rounded-full font-bold shadow-sm border border-white whitespace-nowrap">一番人気！</span>
-                            </button>
-                            <button onclick="selectCourse(110)" id="btn-110" class="flex-1 py-2 rounded-full text-sm font-bold transition-all relative">スペシャル 110分</button>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-8">
-                            <div id="guide-50" class="bg-white border border-pink-100 rounded-2xl p-4 text-center transition-all duration-300">
-                                <h4 class="font-bold text-sm text-[#5D4037] mb-1">ライト 50分</h4>
-                                <p class="text-[11px] text-[#8E5E65] leading-relaxed font-medium">休憩中の時短ケアに！</p>
-                            </div>
-                            <div id="guide-80" class="bg-white border border-pink-100 rounded-2xl p-4 text-center transition-all duration-300">
-                                <h4 class="font-bold text-sm text-[#5D4037] mb-1">スタンダード 80分</h4>
-                                <p class="text-[11px] text-[#8E5E65] leading-relaxed font-medium">全身をしっかりケアに！オイルとの組み合わせも可能。</p>
-                            </div>
-                            <div id="guide-110" class="bg-white border border-pink-100 rounded-2xl p-4 text-center transition-all duration-300">
-                                <h4 class="font-bold text-sm text-[#5D4037] mb-1">スペシャル 110分</h4>
-                                <p class="text-[11px] text-[#8E5E65] leading-relaxed font-medium">最大限の結果を出したい方の贅沢プラン♪</p>
-                            </div>
-                        </div>
-                        <div class="bg-amber-50 border border-amber-200 rounded-xl p-4 mb-6 flex items-start gap-3 shadow-sm">
-                            <svg class="w-5 h-5 text-amber-500 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-                            <div class="text-xs sm:text-sm text-amber-900 leading-relaxed font-medium space-y-1">
-                                <p>※施術時間の中にお着替え時間も含みます。<br class="sm:hidden">動きやすい服装であればお着替え不要です。</p>
-                                <p>※オイルと組み合わせの場合は施術時間が10分短くなります。</p>
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
-                            <!-- 月2回 平日16時まで限定 30% OFF -->
-                            <div class="border-2 border-[#E98B9F] rounded-3xl p-6 text-center bg-white shadow-sm flex flex-col">
-                                <div class="bg-[#E98B9F] text-white text-[10px] font-bold py-1 px-4 rounded-full w-fit mx-auto -mt-9 mb-3 shadow-sm">断然おすすめ！</div>
-                                <h5 class="font-bold text-lg mb-2">月2回プラン</h5>
-                                <div class="inline-block bg-pink-50 text-[#E98B9F] text-xs font-bold px-3 py-1 rounded-full border border-pink-100 mb-3">
-                                    平日<span class="subsTimeDisplay">16</span>時まで限定
-                                </div>
-                                <p class="text-xs text-gray-400 mb-1 line-through"><span id="subsBaseA">12,160</span>円/回</p>
-                                <div class="text-4xl font-black text-[#E98B9F] mb-3"><span id="subsPriceA">8,512</span><span class="text-sm">円/回</span></div>
-                                <div class="text-[#E53E3E] font-black text-xl bg-[#FFF5F7] py-2 mb-4 rounded-lg border border-pink-50 shadow-sm mx-2"><span id="subsDiscountALabel">30</span>% OFF</div>
-                                <div class="bg-[#FFF5F7] p-3 rounded-xl mb-4">
-                                    <div class="text-[10px] text-gray-500">月額合計</div>
-                                    <div class="text-xl font-bold"><span id="subsTotalA">17,024</span>円</div>
-                                </div>
-                                <div class="mt-auto border-t border-dashed border-pink-100 pt-4">
-                                    <p class="text-xs font-bold text-gray-400 mb-3">＼こちらからお申し込み／</p>
-                                    <div id="qr-container-A" class="bg-white p-2 inline-block border border-gray-100 rounded-lg shadow-inner mb-2"></div>
-                                    <div class="text-[9px] text-gray-300 break-all px-4" id="url-text-A"></div>
-                                </div>
-                            </div>
-                            <!-- 月2回 ALLDAY 20% OFF -->
-                            <div class="border-2 border-[#5BA4A4] rounded-3xl p-6 text-center bg-white shadow-sm flex flex-col">
-                                <div class="bg-[#5BA4A4] text-white text-[10px] font-bold py-1 px-4 rounded-full w-fit mx-auto -mt-9 mb-3 shadow-sm">ALL DAY</div>
-                                <h5 class="font-bold text-lg mb-2">月2回プラン</h5>
-                                <div class="inline-block bg-teal-50 text-teal-700 text-xs font-bold px-3 py-1 rounded-full border border-teal-100 mb-3">
-                                    時間・曜日を問わず
-                                </div>
-                                <p class="text-xs text-gray-400 mb-1 line-through"><span id="subsBaseC">12,160</span>円/回</p>
-                                <div class="text-4xl font-black text-[#5BA4A4] mb-3"><span id="subsPriceC">9,728</span><span class="text-sm">円/回</span></div>
-                                <div class="text-[#E53E3E] font-black text-xl bg-[#FFF5F7] py-2 mb-4 rounded-lg border border-pink-50 shadow-sm mx-2"><span id="subsDiscountCLabel">20</span>% OFF</div>
-                                <div class="bg-[#FFF5F7] p-3 rounded-xl mb-4">
-                                    <div class="text-[10px] text-gray-500">月額合計</div>
-                                    <div class="text-xl font-bold"><span id="subsTotalC">19,456</span>円</div>
-                                </div>
-                                <div class="mt-auto border-t border-dashed border-teal-100 pt-4">
-                                    <p class="text-xs font-bold text-gray-400 mb-3">＼こちらからお申し込み／</p>
-                                    <div id="qr-container-C" class="bg-white p-2 inline-block border border-gray-100 rounded-lg shadow-inner mb-2"></div>
-                                    <div class="text-[9px] text-gray-300 break-all px-4" id="url-text-C"></div>
-                                </div>
-                            </div>
-                            <!-- 月1回 ALLDAY 15% OFF -->
-                            <div class="border border-pink-100 rounded-3xl p-6 text-center bg-white shadow-sm flex flex-col">
-                                <div class="bg-[#5BA4A4] text-white text-[10px] font-bold py-1 px-4 rounded-full w-fit mx-auto -mt-9 mb-3 shadow-sm">ALL DAY</div>
-                                <h5 class="font-bold text-lg mb-2">月1回プラン</h5>
-                                <div class="inline-block bg-teal-50 text-teal-700 text-xs font-bold px-3 py-1 rounded-full border border-teal-100 mb-3">
-                                    時間・曜日を問わず
-                                </div>
-                                <p class="text-xs text-gray-400 mb-1 line-through"><span id="subsBaseB">12,160</span>円/回</p>
-                                <div class="text-4xl font-black text-[#E98B9F] mb-3"><span id="subsPriceB">10,336</span><span class="text-sm">円/回</span></div>
-                                <div class="text-[#E53E3E] font-black text-xl bg-[#FFF5F7] py-2 mb-4 rounded-lg border border-pink-50 shadow-sm mx-2"><span id="subsDiscountBLabel">15</span>% OFF</div>
-                                <div class="bg-[#FFF5F7] p-3 rounded-xl mb-4">
-                                    <div class="text-[10px] text-gray-500">月額合計</div>
-                                    <div class="text-xl font-bold"><span id="subsTotalB">10,336</span>円</div>
-                                </div>
-                                <div class="mt-auto border-t border-dashed border-pink-100 pt-4">
-                                    <p class="text-xs font-bold text-gray-400 mb-3">＼こちらからお申し込み／</p>
-                                    <div id="qr-container-B" class="bg-white p-2 inline-block border border-gray-100 rounded-lg shadow-inner mb-2"></div>
-                                    <div class="text-[9px] text-gray-300 break-all px-4" id="url-text-B"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script>
-        const PRICES = { 50: 7600, 80: 12160, 110: 16720 };
-        const COURSE_NAMES = { 50: "ライト", 80: "スタンダード", 110: "スペシャル" };
-        const LINKS = {
-            A: { // 月2回 平日16時まで限定 30% OFF
-                50:  "https://web.online.airpayment.jp/payment?planId=PL7etMue85iCL12DIC",
-                80:  "https://web.online.airpayment.jp/payment?planId=PLDH8bEhe7KaH4Qysv",
-                110: "https://web.online.airpayment.jp/payment?planId=PLXOrDYMliTDofXKGR"
-            },
-            C: { // 月2回 ALLDAY 20% OFF
-                50:  "https://web.online.airpayment.jp/payment?planId=PLq9xwOKfJ7Vd1JwCm",
-                80:  "https://web.online.airpayment.jp/payment?planId=PLE7NN9YujLwmeETiA",
-                110: "https://web.online.airpayment.jp/payment?planId=PLfg3MP3oEIaqpPdAR"
-            },
-            B: { // 月1回 ALLDAY 15% OFF
-                50:  "https://web.online.airpayment.jp/payment?planId=PLCg7kJ4nmlmAiXk8K",
-                80:  "https://web.online.airpayment.jp/payment?planId=PLCg7kJ4nmlmAiXk8K",
-                110: "https://web.online.airpayment.jp/payment?planId=PLEYIgH98SXNwscyOH"
-            }
-        };
-
-        let currentCourse = 80;
-        let qrA, qrB, qrC;
-
-        window.onload = () => {
-            qrA = new QRCode(document.getElementById("qr-container-A"), { width: 120, height: 120 });
-            qrB = new QRCode(document.getElementById("qr-container-B"), { width: 120, height: 120 });
-            qrC = new QRCode(document.getElementById("qr-container-C"), { width: 120, height: 120 });
-            selectCourse(80);
-            updatePhase(0);
-        };
-
-        function changeFontSize(size, btnIndex) {
-            document.documentElement.style.fontSize = size;
-            document.querySelectorAll('.font-size-btn').forEach((btn, idx) => {
-                if (idx === btnIndex) {
-                    btn.classList.add('bg-white', 'text-[#E98B9F]', 'shadow-sm', 'border-pink-200');
-                    btn.classList.remove('text-[#8E5E65]', 'border-transparent', 'hover:bg-pink-50');
-                } else {
-                    btn.classList.remove('bg-white', 'text-[#E98B9F]', 'shadow-sm', 'border-pink-200');
-                    btn.classList.add('text-[#8E5E65]', 'border-transparent', 'hover:bg-pink-50');
-                }
-            });
-        }
-
-        function selectCourse(min) {
-            currentCourse = min;
-            [50, 80, 110].forEach(m => {
-                const btn = document.getElementById(`btn-${m}`);
-                const guide = document.getElementById(`guide-${m}`);
-                if (m === min) {
-                    btn.className = "flex-1 py-2 rounded-full text-sm font-bold bg-[#E98B9F] text-white shadow-md relative";
-                    if(guide) { guide.classList.add('course-guide-active', 'border-2', 'shadow-sm'); guide.classList.remove('border-pink-100'); }
-                } else {
-                    btn.className = "flex-1 py-2 rounded-full text-sm font-bold text-[#8E5E65] hover:bg-white relative";
-                    if(guide) { guide.classList.remove('course-guide-active', 'border-2', 'shadow-sm'); guide.classList.add('border', 'border-pink-100'); }
-                }
-            });
-            recalcSubs();
-        }
-
-        function recalcSubs() {
-            const base = PRICES[currentCourse];
-            const courseName = COURSE_NAMES[currentCourse];
-            const time = document.getElementById('settingTime')?.value || 16;
-            const discount1 = parseInt(document.getElementById('settingDiscount1')?.value || 15);
-            const discount2 = parseInt(document.getElementById('settingDiscount2')?.value || 30);
-            const discountC = parseInt(document.getElementById('settingDiscountC')?.value || 20);
-
-            document.getElementById('subsCourseLabel').innerText = `${courseName} ${currentCourse}`;
-            document.querySelectorAll('.subsTimeDisplay').forEach(el => el.innerText = time);
-            if(document.getElementById('subsDiscountALabel')) document.getElementById('subsDiscountALabel').innerText = discount2;
-            if(document.getElementById('subsDiscountBLabel')) document.getElementById('subsDiscountBLabel').innerText = discount1;
-            if(document.getElementById('subsDiscountCLabel')) document.getElementById('subsDiscountCLabel').innerText = discountC;
-
-            // Card A: 月2回 平日16時まで限定 30% OFF
-            const priceA = Math.floor(base * (1 - discount2 / 100));
-            document.getElementById('subsBaseA').innerText = base.toLocaleString();
-            document.getElementById('subsPriceA').innerText = priceA.toLocaleString();
-            document.getElementById('subsTotalA').innerText = (priceA * 2).toLocaleString();
-            const urlA = LINKS.A[currentCourse];
-            qrA.makeCode(urlA);
-            document.getElementById('url-text-A').innerText = urlA;
-
-            // Card C: 月2回 ALLDAY 20% OFF
-            const priceC = Math.floor(base * (1 - discountC / 100));
-            document.getElementById('subsBaseC').innerText = base.toLocaleString();
-            document.getElementById('subsPriceC').innerText = priceC.toLocaleString();
-            document.getElementById('subsTotalC').innerText = (priceC * 2).toLocaleString();
-            const urlC = LINKS.C[currentCourse];
-            qrC.makeCode(urlC);
-            document.getElementById('url-text-C').innerText = urlC;
-
-            // Card B: 月1回 ALLDAY 15% OFF
-            const priceB = Math.floor(base * (1 - discount1 / 100));
-            document.getElementById('subsBaseB').innerText = base.toLocaleString();
-            document.getElementById('subsPriceB').innerText = priceB.toLocaleString();
-            document.getElementById('subsTotalB').innerText = priceB.toLocaleString();
-            const urlB = LINKS.B[currentCourse];
-            qrB.makeCode(urlB);
-            document.getElementById('url-text-B').innerText = urlB;
-        }
-
-        const phaseDetails = [
-            {
-                title: "土台期",
-                desc: "まずは凝りをほぐして土台の仙骨を整える時期です。筋肉の硬さと骨格の歪みをしっかりケアし、正しいバランスの基礎を作ります。間隔を空けずに施術することが理想的です。",
-                point: "初回〜4回目：可動域・歪みをチェック。仙骨周りを集中的にケアし、自律神経やホルモンバランスを整える土台を作ります。"
-            },
-            {
-                title: "調整期",
-                desc: "整えた土台を調節して定着させる時期です。筋肉がほぐれやすくなっているため、悪い姿勢のクセを抜き、良い状態を体に覚え込ませていきます。",
-                point: "5〜8回目：ほぐれが良くなってきたタイミング。「猫背矯正」などを組み合わせ、整った状態を「定着」させていきましょう。"
-            },
-            {
-                title: "メンテナンス期",
-                desc: "整えて定着した後に定期的にメンテナンスをする時期です。良い状態を維持し、日々の疲れをリセット。不調が出にくい身体をキープします。",
-                point: "9回目以降：月に1回程度のペースで、その時の身体の状態に合わせたケアを継続しましょう。"
-            }
-        ];
-
-        function updatePhase(index) {
-            document.querySelectorAll('.phase-card').forEach((btn, i) => {
-                btn.classList.toggle('active-phase', i === index);
-            });
-            const detail = phaseDetails[index];
-            document.getElementById('detail-title').innerText = detail.title;
-            document.getElementById('detail-text').innerText = detail.desc;
-            document.getElementById('detail-point').innerText = detail.point;
-        }
-
-        function toggleSettings() {
-            document.getElementById('settingsPanel').classList.toggle('open');
-            document.getElementById('settingsGear').classList.toggle('active');
-        }
-
-        function toggleVisibility(sectionId, isVisible) {
-            const section = document.getElementById(sectionId);
-            if (section) {
-                if (isVisible) {
-                    section.style.display = 'block';
-                    setTimeout(() => { section.style.opacity = '1'; section.style.transform = 'translateY(0)'; }, 10);
-                } else {
-                    section.style.opacity = '0';
-                    section.style.transform = 'translateY(-10px)';
-                    setTimeout(() => { section.style.display = 'none'; }, 300);
-                }
-            }
+        tailwind.config = {
+            theme: { extend: { colors: { pink: {
+                50:'#fdf2f8',100:'#fce7f3',200:'#fbcfe8',300:'#f9a8d4',
+                400:'#f472b6',500:'#ec4899',600:'#db2777',700:'#be185d',
+                800:'#9d174d',900:'#831843'
+            }}}}
         }
     </script>
+    <style>
+        body { font-family: 'Hiragino Kaku Gothic ProN','Meiryo',sans-serif; }
+        ::-webkit-scrollbar { width:6px; height:6px; }
+        ::-webkit-scrollbar-thumb { background:#f9a8d4; border-radius:10px; }
+        .method-btn.active { background-color:#ec4899; color:white; border-color:#ec4899; }
+        .method-btn.active i { color:white; }
+        .staff-column { min-width:320px; max-width:400px; }
+        .animate-pop { animation:pop 0.3s ease-out; }
+        @keyframes pop { 0%{transform:scale(0.95);opacity:0} 100%{transform:scale(1);opacity:1} }
+        .tab-btn { padding:14px 20px; font-weight:900; color:#9d174d; border-bottom:4px solid transparent;
+                   white-space:nowrap; font-size:0.875rem; display:flex; align-items:center; gap:6px;
+                   transition:all 0.15s; cursor:pointer; background:none; border-top:none; border-left:none; border-right:none; }
+        .tab-btn:hover { background:#fce7f3; }
+        .tab-btn.active { border-bottom-color:#ec4899; color:#1f0b14; }
+        .role-badge { font-size:9px; font-weight:900; padding:2px 8px; border-radius:9999px; }
+        .role-本部 { background:#1e3a5f; color:white; }
+        .role-オーナー { background:#7c3aed; color:white; }
+        .role-店長 { background:#059669; color:white; }
+        .role-スタッフ { background:#ec4899; color:white; }
+        .store-card { transition:all 0.2s; }
+        .store-card:hover { transform:translateY(-2px); box-shadow:0 8px 20px rgba(236,72,153,0.12); }
+    </style>
+</head>
+<body class="bg-pink-50 text-pink-900 h-screen flex flex-col overflow-hidden" onload="initApp()">
+
+<!-- ナビゲーションバー -->
+<header class="bg-pink-200 shadow-sm border-b border-pink-300 z-30">
+    <div class="container mx-auto px-4 flex justify-between items-center h-14 gap-3">
+        <div class="flex items-center space-x-3 shrink-0">
+            <div class="bg-pink-600 text-white p-2 rounded-xl shadow-sm">
+                <i class="fas fa-heartbeat text-lg animate-pulse"></i>
+            </div>
+            <div>
+                <span class="text-pink-900 font-black text-lg tracking-tight block leading-none">POWWOW Staff Board</span>
+                <span class="text-[9px] text-pink-700 font-bold block mt-0.5">女性専門整体サロン パウワウ 評価連携システム</span>
+            </div>
+        </div>
+
+        <div class="flex-1 max-w-xs hidden md:block">
+            <div class="relative">
+                <input type="text" id="global-search" onkeyup="handleGlobalSearch(event)" placeholder="顧客名・電話番号で検索..."
+                       class="w-full bg-white border border-pink-300 rounded-full py-1.5 pl-9 pr-4 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-pink-400 text-xs"></i>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs shrink-0">
+            <!-- ロール切替 -->
+            <div class="flex flex-col items-end gap-0.5">
+                <span class="text-[8px] text-pink-600 font-bold">閲覧権限</span>
+                <select id="role-selector" onchange="switchRole(this.value)"
+                        class="bg-white border border-pink-300 rounded-lg text-xs font-bold text-pink-900 px-2 py-1 focus:outline-none shadow-sm cursor-pointer">
+                    <option value="本部">🏢 本部</option>
+                    <option value="オーナー">👑 オーナー（東京・神奈川）</option>
+                    <option value="店長">🏪 店長</option>
+                    <option value="スタッフ">💆 スタッフ（佐藤）</option>
+                </select>
+            </div>
+            <!-- 店舗切替 -->
+            <div class="flex flex-col items-end gap-0.5">
+                <span class="text-[8px] text-pink-600 font-bold">店舗</span>
+                <select id="store-selector" onchange="switchStore(this.value)"
+                        class="bg-white border border-pink-300 rounded-lg text-xs font-bold text-pink-900 px-2 py-1 focus:outline-none shadow-sm cursor-pointer">
+                </select>
+            </div>
+            <div id="clock" class="text-sm font-mono font-bold text-pink-600 bg-white px-3 py-1 rounded shadow-sm border border-pink-200 ml-1">18:18</div>
+        </div>
+    </div>
+</header>
+
+<!-- メインメニュー -->
+<nav class="bg-pink-100 border-b border-pink-200 shadow-sm z-20 overflow-x-auto" id="main-nav">
+    <div class="container mx-auto px-4 flex" id="tab-container"></div>
+</nav>
+
+<!-- 全店舗サマリー -->
+<div id="section-store-summary" class="hidden flex-1 flex flex-col overflow-hidden p-4 sm:p-6 bg-pink-50/30">
+    <div class="container mx-auto max-w-7xl flex flex-col gap-4 h-full">
+        <div class="flex items-center justify-between">
+            <h2 class="font-black text-pink-800 text-base flex items-center gap-2">
+                <i class="fas fa-map-marked-alt text-pink-500"></i> 全店舗 本日の稼働サマリー
+            </h2>
+            <span id="summary-role-badge" class="role-badge role-本部">本部ビュー</span>
+        </div>
+        <div id="store-summary-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 overflow-y-auto flex-1"></div>
+    </div>
+</div>
+
+<!-- スタッフ別顧客リスト -->
+<div id="section-staff-view" class="hidden flex-1 flex flex-col overflow-hidden">
+    <div class="bg-white border-b border-pink-200 p-3">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+            <h2 class="font-black text-pink-800 text-sm sm:text-base flex items-center gap-2">
+                <i class="fas fa-calendar-alt text-pink-500"></i>
+                <span id="current-date-display">2026年5月20日 (水)</span>
+                <span id="current-store-badge" class="text-[10px] font-bold bg-pink-100 text-pink-700 px-2 py-0.5 rounded-full border border-pink-200"></span>
+            </h2>
+            <div class="flex items-center gap-3">
+                <button onclick="openBatchMissionModal()" class="bg-pink-50 text-pink-600 border border-pink-300 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-pink-100 transition flex items-center gap-1.5">
+                    <i class="fas fa-bullhorn text-pink-500 animate-bounce"></i> 未病ミッションを一括変更
+                </button>
+            </div>
+        </div>
+    </div>
+    <main class="flex-1 overflow-x-auto p-4 bg-pink-50/20">
+        <div id="staff-lanes-container" class="flex gap-4 h-full items-start"></div>
+    </main>
+</div>
+
+<!-- 顧客検索・当日追加 -->
+<div id="section-search" class="hidden flex-1 flex flex-col overflow-hidden p-4 sm:p-6 bg-pink-50/40">
+    <div class="container mx-auto max-w-5xl h-full flex flex-col gap-4">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-pink-200">
+            <h3 class="font-black text-pink-800 mb-3 flex items-center gap-2 text-base">
+                <i class="fas fa-search-plus text-pink-500"></i> カルテ顧客検索から当日追加
+            </h3>
+            <p class="text-xs text-pink-600/80 mb-3">カルテに登録されている既存の会員様を検索し、本日の担当レーンに即座にアサインできます。</p>
+            <div class="flex gap-2">
+                <input type="text" id="customer-search-input" placeholder="顧客名・かな・電話番号を入力..."
+                       class="flex-1 border border-pink-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-pink-400 outline-none shadow-inner">
+                <button onclick="searchCustomers()" class="bg-pink-500 text-white px-6 py-2.5 rounded-xl font-black text-sm hover:bg-pink-600 shadow-md transition flex items-center gap-1.5">
+                    <i class="fas fa-search"></i> 検索
+                </button>
+            </div>
+        </div>
+        <div class="flex-1 bg-white rounded-2xl shadow-sm border border-pink-200 overflow-hidden flex flex-col">
+            <div class="p-3 border-b border-pink-100 bg-pink-50/50 flex justify-between items-center">
+                <span class="text-xs font-bold text-pink-500">検索結果</span>
+                <span id="search-count" class="text-xs bg-pink-200 text-pink-700 px-2.5 py-0.5 rounded-full font-bold">0件</span>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4">
+                <div id="search-results" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 評価査定・日報集計 -->
+<div id="section-evaluation" class="hidden flex-1 flex flex-col overflow-hidden p-4 sm:p-6 bg-pink-50/30">
+    <div class="container mx-auto max-w-6xl h-full flex flex-col lg:flex-row gap-6 overflow-hidden">
+        <div class="w-full lg:w-2/5 bg-white rounded-2xl shadow-sm border border-pink-200 p-5 flex flex-col overflow-y-auto">
+            <div class="border-b border-pink-100 pb-3 mb-4">
+                <h3 class="font-black text-pink-800 text-base flex items-center gap-2">
+                    <i class="fas fa-award text-pink-500"></i> WHC人事評価査定シミュレーター
+                </h3>
+                <p class="text-[10px] text-pink-500 font-bold mt-1">人事考課査定（半年に1回 2月/8月）の査定を日報から自動計算</p>
+            </div>
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-pink-700 mb-1.5">スタッフを選択してシミュレート</label>
+                <select id="eval-staff-selector" onchange="loadStaffEvaluation()" class="w-full bg-pink-50 border border-pink-200 rounded-lg p-2 text-xs font-bold text-pink-900 outline-none focus:ring-1 focus:ring-pink-500"></select>
+            </div>
+            <div class="bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl p-4 text-white shadow-md mb-4 flex justify-between items-center">
+                <div>
+                    <span class="text-[9px] bg-white/20 px-2 py-0.5 rounded-full font-bold block w-max uppercase tracking-wider mb-1">現在のグレード</span>
+                    <span id="eval-current-grade" class="text-lg font-black block">ミドルWHC①</span>
+                    <div class="flex gap-2 mt-1.5 text-[10px] opacity-90 font-bold">
+                        <span>月給: <span id="eval-salary">239,000円</span></span>
+                        <span>時給: <span id="eval-hourly">1,300円</span></span>
+                    </div>
+                </div>
+                <div class="text-right border-l border-white/20 pl-4">
+                    <span class="text-[9px] opacity-80 block font-bold mb-0.5">累計施術人数</span>
+                    <span id="eval-treatments-count" class="text-xl font-black block font-mono">220 人</span>
+                </div>
+            </div>
+            <div class="space-y-3 border-t border-pink-100 pt-3">
+                <div class="flex justify-between items-center mb-1">
+                    <h4 class="text-xs font-bold text-pink-800 uppercase tracking-wide">① 定量評価項目</h4>
+                    <span class="text-[9px] text-gray-400 font-bold">直近の稼働より自動集計</span>
+                </div>
+                <div class="bg-pink-50/50 p-2 rounded-lg border border-pink-100 flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] font-black text-pink-800 block">個人稼働率 <span class="text-[9px] text-pink-500">(ウェイト 2)</span></span>
+                        <span id="eval-occupancy-detail" class="text-[10px] text-gray-500 font-bold">施術時間 0分 / 稼働時間 0分</span>
+                    </div>
+                    <div class="text-right">
+                        <span id="eval-occupancy-val" class="text-xs font-black text-pink-900 font-mono block">0%</span>
+                        <span id="eval-occupancy-score" class="text-[10px] font-bold text-pink-500 block">1点 (2倍後: 2点)</span>
+                    </div>
+                </div>
+                <div id="eval-special-metric-box" class="bg-pink-50/50 p-2 rounded-lg border border-pink-100 flex justify-between items-center">
+                    <div>
+                        <span id="eval-special-metric-name" class="text-[10px] font-black text-pink-800 block">既存次回予約率 <span class="text-[9px] text-pink-500">(ウェイト 1)</span></span>
+                        <span id="eval-special-metric-detail" class="text-[10px] text-gray-500 font-bold">次回予約 0件 / 施術数 0件</span>
+                    </div>
+                    <div class="text-right">
+                        <span id="eval-special-metric-val" class="text-xs font-black text-pink-900 font-mono block">0%</span>
+                        <span id="eval-special-metric-score" class="text-[10px] font-bold text-pink-500 block">1点</span>
+                    </div>
+                </div>
+                <div class="bg-pink-50/50 p-2 rounded-lg border border-pink-100 flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] font-black text-pink-800 block">新規会員獲得数 <span class="text-[9px] text-pink-500">(ウェイト 1)</span></span>
+                        <span id="eval-new-member-detail" class="text-[10px] text-gray-500 font-bold">プリペイド/サブスク 0件</span>
+                    </div>
+                    <div class="text-right">
+                        <span id="eval-new-member-val" class="text-xs font-black text-pink-900 font-mono block">0件</span>
+                        <span id="eval-new-member-score" class="text-[10px] font-bold text-pink-500 block">1点</span>
+                    </div>
+                </div>
+                <div class="bg-pink-50/50 p-2 rounded-lg border border-pink-100 flex justify-between items-center">
+                    <div>
+                        <span class="text-[10px] font-black text-pink-800 block">店舗リピート率 <span class="text-[9px] text-pink-500">(ウェイト 1)</span></span>
+                        <span class="text-[10px] text-gray-400 font-bold">店舗全体値</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-xs font-black text-pink-900 font-mono block">88%</span>
+                        <span class="text-[10px] font-bold text-pink-500 block">3点</span>
+                    </div>
+                </div>
+            </div>
+            <div class="space-y-2 border-t border-pink-100 pt-3 mt-4">
+                <h4 class="text-xs font-bold text-pink-800 mb-1.5 uppercase tracking-wide">② 加点評価項目 (0〜6点)</h4>
+                <div class="grid grid-cols-2 gap-2 text-xs">
+                    <div>
+                        <label class="block text-[10px] text-gray-500 font-bold mb-0.5">土日祝出勤</label>
+                        <select id="eval-add-weekend" onchange="calculateEvaluationScore()" class="w-full bg-pink-50 border border-pink-200 rounded p-1 text-[11px] font-bold text-pink-900 focus:outline-none">
+                            <option value="2">常時土日祝出勤 (+2点)</option>
+                            <option value="1">週1回以上 (+1点)</option>
+                            <option value="0">土日祝不可 (+0点)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-500 font-bold mb-0.5">週の勤務数</label>
+                        <select id="eval-add-days" onchange="calculateEvaluationScore()" class="w-full bg-pink-50 border border-pink-200 rounded p-1 text-[11px] font-bold text-pink-900 focus:outline-none">
+                            <option value="2">常時週5日勤務 (+2点)</option>
+                            <option value="1">常時週4日勤務 (+1点)</option>
+                            <option value="0">週4日以下 (+0点)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-500 font-bold mb-0.5">遅番勤務</label>
+                        <select id="eval-add-late" onchange="calculateEvaluationScore()" class="w-full bg-pink-50 border border-pink-200 rounded p-1 text-[11px] font-bold text-pink-900 focus:outline-none">
+                            <option value="1">週2回以上の遅番 (+1点)</option>
+                            <option value="0">遅番不可/なし (+0点)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] text-gray-500 font-bold mb-0.5">他店ヘルプ実績</label>
+                        <select id="eval-add-help" onchange="calculateEvaluationScore()" class="w-full bg-pink-50 border border-pink-200 rounded p-1 text-[11px] font-bold text-pink-900 focus:outline-none">
+                            <option value="1">期間内1回以上ヘルプあり (+1点)</option>
+                            <option value="0">ヘルプなし (+0点)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 pt-3 border-t-2 border-dashed border-pink-200 bg-pink-50/50 rounded-xl p-3">
+                <div class="flex justify-between items-center text-xs font-bold text-pink-800 mb-1.5">
+                    <span>査定トータル算出スコア</span>
+                    <span id="eval-total-score" class="text-sm font-black text-pink-600 font-mono">0点</span>
+                </div>
+                <div class="space-y-1.5 text-[10px]">
+                    <div id="eval-upgrade-tip-1" class="text-pink-700 font-bold flex items-center gap-1">
+                        <i class="fas fa-check-circle text-emerald-500"></i> 査定データを読み込み中...
+                    </div>
+                    <div id="eval-upgrade-tip-2" class="text-gray-500 font-bold flex items-start gap-1">
+                        <i class="fas fa-info-circle text-pink-400 mt-0.5"></i> <span>次のグレードへの必要要件を表示します</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex-1 bg-white rounded-2xl shadow-sm border border-pink-200 p-5 flex flex-col overflow-hidden">
+            <div class="border-b border-pink-100 pb-3 mb-4 flex justify-between items-center">
+                <div>
+                    <h3 class="font-black text-pink-800 text-base flex items-center gap-2">
+                        <i class="fas fa-list text-pink-500"></i> 本日の日報成果・評価ログ蓄積
+                    </h3>
+                    <p class="text-[10px] text-pink-500 font-bold mt-1">会計確定により、評価項目が自動的にスタッフの日報へ転記されます。</p>
+                </div>
+                <span class="text-[10px] bg-emerald-100 text-emerald-700 px-2.5 py-0.5 rounded-full font-bold border border-emerald-300">
+                    <i class="fas fa-cloud-upload-alt mr-0.5"></i> システム自動連携中
+                </span>
+            </div>
+            <div class="flex-1 overflow-y-auto">
+                <table class="w-full text-left border-collapse text-xs">
+                    <thead>
+                        <tr class="text-pink-500 border-b border-pink-100 font-bold bg-pink-50/30">
+                            <th class="py-2.5 px-3">施術終了日時</th>
+                            <th class="py-2.5 px-3">スタッフ</th>
+                            <th class="py-2.5 px-3">顧客名</th>
+                            <th class="py-2.5 px-2 text-center">次回予約</th>
+                            <th class="py-2.5 px-2 text-center">未病ミッション</th>
+                            <th class="py-2.5 px-2 text-center">新規会員</th>
+                            <th class="py-2.5 px-2 text-center">物販</th>
+                            <th class="py-2.5 px-2 text-center">時間</th>
+                        </tr>
+                    </thead>
+                    <tbody id="daily-report-log-body" class="divide-y divide-pink-100 text-pink-900"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- メニュー管理 -->
+<div id="section-master" class="hidden flex-1 flex flex-col overflow-hidden p-4 sm:p-6 bg-pink-50/40">
+    <div class="container mx-auto max-w-4xl bg-white rounded-2xl shadow-sm border border-pink-200 flex flex-col h-full">
+        <div class="p-4 border-b border-pink-100 flex justify-between items-center bg-pink-100/30 rounded-t-xl">
+            <h2 class="font-bold text-pink-900 flex items-center gap-2">
+                <i class="fas fa-list-ul text-pink-500"></i> メニュー（施術）＆物販商品マスター編集
+            </h2>
+            <div class="flex gap-2">
+                <button onclick="toggleMenuForm('menu')" class="bg-pink-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-pink-600 shadow-sm transition">
+                    <i class="fas fa-plus mr-1"></i> 新規施術メニュー
+                </button>
+                <button onclick="toggleMenuForm('product')" class="bg-pink-600 text-white px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-pink-700 shadow-sm transition">
+                    <i class="fas fa-plus mr-1"></i> 新規物販商品
+                </button>
+            </div>
+        </div>
+        <div id="master-form-box" class="hidden p-4 bg-pink-50 border-b border-pink-200 animate-pop">
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                <input id="master-item-name" type="text" placeholder="名前 (例: 整体 60分)" class="border border-pink-300 rounded px-3 py-2 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                <input id="master-item-price" type="number" placeholder="金額 (税別)" class="border border-pink-300 rounded px-3 py-2 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                <input id="master-item-time" type="number" placeholder="施術時間 (分)" class="border border-pink-300 rounded px-3 py-2 text-xs focus:ring-2 focus:ring-pink-400 outline-none">
+                <div class="flex gap-2">
+                    <button onclick="saveNewMasterItem()" class="flex-1 bg-green-500 text-white rounded text-xs font-bold hover:bg-green-600 transition">保存</button>
+                    <button onclick="toggleMenuForm()" class="flex-1 bg-gray-400 text-white rounded text-xs font-bold hover:bg-gray-500 transition">閉じる</button>
+                </div>
+            </div>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="font-black text-pink-800 text-xs mb-2 border-b border-pink-100 pb-1.5 flex items-center gap-1.5">
+                        <i class="fas fa-hand-holding-heart text-pink-500"></i> 施術メニュー一覧
+                    </h3>
+                    <table class="w-full text-xs text-left">
+                        <thead><tr class="text-pink-400 border-b border-pink-50 font-bold">
+                            <th class="py-1">コース名</th><th class="py-1 text-center w-16">時間</th><th class="py-1 text-right">価格</th><th class="py-1 text-center w-12">操作</th>
+                        </tr></thead>
+                        <tbody id="master-menu-tbody" class="divide-y divide-pink-50 text-pink-900"></tbody>
+                    </table>
+                </div>
+                <div>
+                    <h3 class="font-black text-pink-800 text-xs mb-2 border-b border-pink-100 pb-1.5 flex items-center gap-1.5">
+                        <i class="fas fa-box-open text-pink-500"></i> 物販商品一覧
+                    </h3>
+                    <table class="w-full text-xs text-left">
+                        <thead><tr class="text-pink-400 border-b border-pink-50 font-bold">
+                            <th class="py-1">商品名</th><th class="py-1 text-right">価格</th><th class="py-1 text-center w-12">操作</th>
+                        </tr></thead>
+                        <tbody id="master-product-tbody" class="divide-y divide-pink-50 text-pink-900"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 会計モーダル -->
+<div id="modal-checkout" class="hidden fixed inset-0 bg-pink-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl flex flex-col max-h-[95vh] overflow-hidden border border-pink-200 animate-pop">
+        <div class="bg-pink-600 p-4 text-white flex justify-between items-center">
+            <h3 class="font-bold text-base flex items-center gap-2">
+                <i class="fas fa-cash-register"></i> <span id="checkout-title">お会計・施術レポート</span>
+            </h3>
+            <button onclick="closeCheckout()" class="text-white/80 hover:text-white transition"><i class="fas fa-times text-xl"></i></button>
+        </div>
+        <div class="flex-1 overflow-y-auto p-4 lg:p-6 flex flex-col lg:flex-row gap-6">
+            <div class="flex-1 space-y-5">
+                <section>
+                    <h4 class="text-xs font-bold text-pink-600 mb-2 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fas fa-spa"></i> 1. 実施した施術メニューを選択
+                    </h4>
+                    <div id="checkout-menu-options" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2"></div>
+                </section>
+                <section class="border-t border-pink-100 pt-3">
+                    <h4 class="text-xs font-bold text-pink-600 mb-2 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fas fa-shopping-bag"></i> 2. 物販商品を選択
+                    </h4>
+                    <div id="checkout-product-options" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2"></div>
+                </section>
+                <section class="border-t border-pink-100 pt-3">
+                    <h4 class="text-xs font-bold text-pink-600 mb-2 uppercase tracking-wider flex items-center gap-1">
+                        <i class="fas fa-credit-card"></i> 3. 支払い方法を選択
+                    </h4>
+                    <div id="payment-methods" class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2"></div>
+                </section>
+            </div>
+            <div class="w-full lg:w-80 flex flex-col gap-4">
+                <div class="bg-pink-50 rounded-xl p-4 border border-pink-200 shadow-inner flex flex-col h-full min-h-[400px]">
+                    <h4 class="text-xs font-bold text-pink-800 mb-3 border-b border-pink-200 pb-1.5 flex justify-between items-center">
+                        <span>選択された精算内容</span>
+                        <span id="active-staff-role-badge" class="text-[9px] bg-pink-200 text-pink-800 px-2 py-0.5 rounded-full font-bold">ジュニア</span>
+                    </h4>
+                    <div id="customer-balance-box" class="hidden mb-3">
+                        <div class="bg-white border border-pink-300 rounded-lg p-2.5 shadow-xs">
+                            <div class="flex items-center justify-between text-[9px] font-bold text-pink-400 mb-0.5">
+                                <span id="balance-label">会員契約残高</span>
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div id="balance-value" class="text-sm font-black text-pink-600 leading-none">--</div>
+                        </div>
+                    </div>
+                    <div id="checkout-items" class="flex-1 text-xs space-y-2 overflow-y-auto max-h-48 pr-1"></div>
+                    <div class="mt-3 pt-3 border-t-2 border-pink-200">
+                        <h4 class="text-[10px] font-black text-pink-600 mb-2 uppercase tracking-wider flex items-center gap-1">
+                            <i class="fas fa-clipboard-check"></i> 人事評価・日報自動連携
+                        </h4>
+                        <div class="space-y-2 mb-3 bg-white p-3 rounded-lg border border-pink-200 shadow-sm">
+                            <label class="flex items-center gap-2 cursor-pointer hover:bg-pink-50 p-1 rounded transition">
+                                <input type="checkbox" id="chk-next-booking" class="w-4 h-4 accent-pink-500 cursor-pointer">
+                                <span class="text-xs font-bold text-pink-900">既存次回予約を取得した</span>
+                            </label>
+                            <label class="flex items-center gap-2 cursor-pointer hover:bg-pink-50 p-1 rounded transition">
+                                <input type="checkbox" id="chk-new-member" class="w-4 h-4 accent-pink-500 cursor-pointer">
+                                <span class="text-xs font-bold text-pink-900 flex items-center gap-1">
+                                    新規会員を獲得した <span class="text-[9px] text-pink-500">(プリカ/サブスク)</span>
+                                </span>
+                            </label>
+                            <div class="flex items-center justify-between border-t border-pink-100 pt-2 mt-2">
+                                <span class="text-xs font-bold text-pink-900">物販販売数 <span class="text-[9px] text-gray-400">(自動カウント)</span></span>
+                                <input type="number" id="product-sold-qty" class="w-12 text-center text-xs font-bold border border-pink-300 rounded p-1 bg-pink-50" min="0" value="0">
+                            </div>
+                        </div>
+                        <div class="bg-white border border-pink-200 rounded p-2 shadow-sm flex items-start gap-2">
+                            <input type="checkbox" id="chk-mission" class="w-4 h-4 accent-pink-500 mt-1 cursor-pointer">
+                            <div class="flex flex-col flex-1">
+                                <span class="text-[9px] text-pink-500 font-bold mb-0.5">本日の未病ケア提案ミッション完了</span>
+                                <input type="text" id="mission-input" class="text-xs font-bold text-pink-900 border-b border-pink-200 focus:outline-none focus:border-pink-500 bg-transparent w-full transition" onchange="updateMission(this.value)" placeholder="ミッション内容">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t-2 border-pink-200 space-y-2">
+                        <div class="flex justify-between items-center bg-white rounded-lg p-1.5 border border-pink-200 text-xs">
+                            <span class="text-[9px] font-bold text-pink-400 uppercase">支払方法</span>
+                            <span id="selected-method-display" class="font-bold text-pink-700">未選択</span>
+                        </div>
+                        <div class="flex justify-between items-end text-pink-900 px-1">
+                            <span class="text-xs font-bold mb-0.5">合計額(税込)</span>
+                            <span id="checkout-total" class="text-2xl font-black">¥ 0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="p-4 lg:p-6 bg-gray-50 border-t border-gray-200 flex justify-end items-center gap-4">
+            <button onclick="closeCheckout()" class="px-5 py-2 border border-gray-300 text-gray-600 rounded-lg hover:bg-gray-100 font-bold transition text-xs">戻る</button>
+            <button onclick="processPayment()" class="px-8 py-2.5 bg-pink-500 text-white rounded-xl hover:bg-pink-600 font-black shadow-md transform active:scale-95 transition-all flex items-center gap-1.5 text-xs sm:text-sm">
+                施術終了・日報同期を確定 <i class="fas fa-check-double"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- スタッフ選択モーダル -->
+<div id="modal-staff-select" class="hidden fixed inset-0 bg-pink-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-pink-200 animate-pop">
+        <div class="bg-pink-600 p-4 text-white flex justify-between items-center rounded-t-2xl">
+            <h3 class="font-bold text-sm flex items-center gap-2">
+                <i class="fas fa-user-plus"></i> 担当スタッフを選択
+            </h3>
+            <button onclick="closeStaffSelect()" class="text-white/80 hover:text-white transition"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-5">
+            <div id="pending-customer-info" class="mb-4 bg-pink-50 rounded-xl p-3 border border-pink-100 text-xs font-bold text-pink-700"></div>
+            <div id="staff-select-buttons" class="space-y-2"></div>
+        </div>
+        <div class="p-4 border-t border-pink-100">
+            <button onclick="closeStaffSelect()" class="w-full py-2 border border-pink-200 text-pink-600 rounded-lg text-xs font-bold hover:bg-pink-50 transition">キャンセル</button>
+        </div>
+    </div>
+</div>
+
+<!-- 一括ミッション変更モーダル -->
+<div id="modal-batch-mission" class="hidden fixed inset-0 bg-pink-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl border border-pink-200 animate-pop">
+        <div class="bg-pink-600 p-4 text-white flex justify-between items-center rounded-t-2xl">
+            <h3 class="font-bold text-sm flex items-center gap-2">
+                <i class="fas fa-bullhorn"></i> 全員の未病ケアミッションを一括変更
+            </h3>
+            <button onclick="closeBatchMissionModal()" class="text-white/80 hover:text-white transition"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="p-5 space-y-4">
+            <p class="text-xs text-pink-600/80 font-bold">本日在店中の全顧客の「未病ケア提案ミッション」を一括で更新します。</p>
+            <div>
+                <label class="block text-xs font-bold text-pink-700 mb-2">ミッション内容（テンプレートから選ぶか直接入力）</label>
+                <div class="flex flex-wrap gap-2 mb-3">
+                    <button onclick="setBatchTemplate('姿勢分析を行い、骨盤ゆがみと未病ケアの基本概念をご案内。')" class="text-[10px] bg-pink-50 border border-pink-200 text-pink-700 px-2 py-1 rounded-lg font-bold hover:bg-pink-100 transition">初回: 骨盤・姿勢分析</button>
+                    <button onclick="setBatchTemplate('仙骨周囲を暖める温活・深呼吸ストレッチをご案内。')" class="text-[10px] bg-pink-50 border border-pink-200 text-pink-700 px-2 py-1 rounded-lg font-bold hover:bg-pink-100 transition">温活・ストレッチ</button>
+                    <button onclick="setBatchTemplate('定期ケア: 自律神経ゆらぎ（むくみ）ケアとハーブティーをご提案。')" class="text-[10px] bg-pink-50 border border-pink-200 text-pink-700 px-2 py-1 rounded-lg font-bold hover:bg-pink-100 transition">VIP定期ケア</button>
+                    <button onclick="setBatchTemplate('季節の更年期ゆらぎ（気圧・気温変化）ケアをご提案。')" class="text-[10px] bg-pink-50 border border-pink-200 text-pink-700 px-2 py-1 rounded-lg font-bold hover:bg-pink-100 transition">季節ケア</button>
+                </div>
+                <textarea id="batch-mission-text" rows="3" placeholder="ミッション内容を入力..."
+                          class="w-full border border-pink-300 rounded-xl px-4 py-3 text-xs font-bold focus:ring-2 focus:ring-pink-400 outline-none shadow-inner resize-none"></textarea>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-[10px] text-amber-700 font-bold flex items-center gap-2">
+                <i class="fas fa-exclamation-triangle text-amber-500"></i>
+                現在在店中の全顧客 (<span id="batch-customer-count">0</span>名) に適用されます。個別のミッションは上書きされます。
+            </div>
+        </div>
+        <div class="p-4 border-t border-pink-100 flex gap-3">
+            <button onclick="closeBatchMissionModal()" class="flex-1 py-2 border border-gray-300 text-gray-600 rounded-lg text-xs font-bold hover:bg-gray-50 transition">キャンセル</button>
+            <button onclick="applyBatchMission()" class="flex-1 py-2 bg-pink-500 text-white rounded-lg text-xs font-bold hover:bg-pink-600 shadow-sm transition flex items-center justify-center gap-1.5">
+                <i class="fas fa-check"></i> 一括適用する
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-6 py-3 rounded-full shadow-2xl transition-all duration-300 opacity-0 pointer-events-none z-[100] text-xs font-bold"></div>
+
+<script>
+// =============================================
+// マスターデータ
+// =============================================
+
+const storesMaster = [
+    { id:'S01', name:'そごう横浜店',    area:'神奈川', type:'直営', ownerId:'O01' },
+    { id:'S02', name:'そごう千葉店',    area:'千葉',   type:'直営', ownerId:'O01' },
+    { id:'S03', name:'ルミネ新宿店',    area:'東京',   type:'直営', ownerId:'O01' },
+    { id:'S04', name:'渋谷マークシティ店', area:'東京', type:'直営', ownerId:'O01' },
+    { id:'S05', name:'イオンモール幕張店', area:'千葉', type:'加盟', ownerId:'O03' },
+    { id:'S06', name:'名古屋栄店',      area:'愛知',   type:'加盟', ownerId:'O03' },
+    { id:'S07', name:'大阪梅田店',      area:'大阪',   type:'加盟', ownerId:'O02' },
+    { id:'S08', name:'京都四条店',      area:'京都',   type:'加盟', ownerId:'O02' },
+];
+
+const ownersMaster = [
+    { id:'O01', name:'田中オーナー', storeIds:['S01','S02','S03','S04'] },
+    { id:'O02', name:'鈴木オーナー', storeIds:['S07','S08'] },
+    { id:'O03', name:'山田オーナー', storeIds:['S05','S06'] },
+];
+
+// 権限ロールの定義
+const roleDefs = {
+    '本部':     { ownerId:null,  storeIds:null,   staffName:null,   tabAccess:['store-summary','staff-view','search','evaluation','master'] },
+    'オーナー': { ownerId:'O01', storeIds:['S01','S02','S03','S04'], staffName:null, tabAccess:['store-summary','staff-view','search','evaluation','master'] },
+    '店長':     { ownerId:null,  storeIds:null,   staffName:null,   tabAccess:['staff-view','search','evaluation','master'] },
+    'スタッフ': { ownerId:null,  storeIds:null,   staffName:'佐藤', tabAccess:['staff-view'] },
+};
+
+const tabDefs = [
+    { id:'store-summary', label:'全店舗サマリー',      icon:'fa-map-marked-alt' },
+    { id:'staff-view',    label:'スタッフ別稼働ボード', icon:'fa-users-cog' },
+    { id:'search',        label:'顧客検索・当日追加',   icon:'fa-user-plus' },
+    { id:'evaluation',    label:'評価査定・日報集計',   icon:'fa-chart-line' },
+    { id:'master',        label:'メニュー・商品管理',   icon:'fa-cog' },
+];
+
+let menuData = [
+    { id:1, name:'整体 45分',    price:4950, time:45 },
+    { id:2, name:'整体 60分',    price:6600, time:60 },
+    { id:3, name:'整体 90分',    price:9900, time:90 },
+    { id:4, name:'骨盤調整 45分', price:4950, time:45 },
+    { id:5, name:'リフレ 30分',  price:3300, time:30 },
+    { id:6, name:'ヘッドスパ 30分', price:4560, time:30 }
+];
+
+let productData = [
+    { id:101, name:'未病ハーブティーセット',          price:1980 },
+    { id:102, name:'仙骨アプローチサポートクッション', price:8800 },
+    { id:103, name:'アロマケアエッセンシャルオイル',   price:2400 }
+];
+
+const paymentMethods = [
+    { id:'cash',    name:'現金',       icon:'fa-money-bill-wave' },
+    { id:'credit',  name:'クレジット', icon:'fa-credit-card' },
+    { id:'smart',   name:'スマート支払', icon:'fa-bolt' },
+    { id:'prepaid', name:'プリペイド消化', icon:'fa-wallet' },
+    { id:'ticket',  name:'回数券消化', icon:'fa-copy' },
+    { id:'sub',     name:'サブスク',   icon:'fa-calendar-check' }
+];
+
+// 店舗別スタッフデータ
+const allStaffData = {
+    'S01': [
+        { name:'佐藤', grade:'ジュニア', gradeDetail:'ジュニアWHC③', totalTreatments:120, salary:'230,000円', hourly:'1,250円' },
+        { name:'鈴木', grade:'ミドル',   gradeDetail:'ミドルWHC①',   totalTreatments:280, salary:'239,000円', hourly:'1,300円' },
+        { name:'高橋', grade:'シニア',   gradeDetail:'シニアWHC①',   totalTreatments:1150, salary:'266,000円', hourly:'1,450円' }
+    ],
+    'S02': [
+        { name:'伊藤', grade:'ジュニア', gradeDetail:'ジュニアWHC①', totalTreatments:45,  salary:'220,000円', hourly:'1,200円' },
+        { name:'渡辺', grade:'ミドル',   gradeDetail:'ミドルWHC②',   totalTreatments:450, salary:'245,000円', hourly:'1,350円' },
+    ],
+    'S03': [
+        { name:'中村', grade:'シニア',   gradeDetail:'シニアWHC②',   totalTreatments:1800, salary:'280,000円', hourly:'1,500円' },
+        { name:'小林', grade:'ミドル',   gradeDetail:'ミドルWHC③',   totalTreatments:600, salary:'250,000円', hourly:'1,380円' },
+        { name:'加藤', grade:'ジュニア', gradeDetail:'ジュニアWHC②', totalTreatments:80,  salary:'225,000円', hourly:'1,220円' },
+    ],
+    'S04': [
+        { name:'松本', grade:'シニア',   gradeDetail:'シニアWHC①',   totalTreatments:1200, salary:'270,000円', hourly:'1,470円' },
+        { name:'井上', grade:'ミドル',   gradeDetail:'ミドルWHC①',   totalTreatments:310, salary:'239,000円', hourly:'1,300円' },
+    ],
+    'S05': [
+        { name:'木村', grade:'ミドル',   gradeDetail:'ミドルWHC②',   totalTreatments:400, salary:'242,000円', hourly:'1,320円' },
+        { name:'林',   grade:'ジュニア', gradeDetail:'ジュニアWHC③', totalTreatments:110, salary:'228,000円', hourly:'1,240円' },
+    ],
+    'S06': [
+        { name:'清水', grade:'シニア',   gradeDetail:'シニアWHC①',   totalTreatments:1050, salary:'266,000円', hourly:'1,450円' },
+        { name:'山口', grade:'ジュニア', gradeDetail:'ジュニアWHC①', totalTreatments:30,  salary:'215,000円', hourly:'1,180円' },
+    ],
+    'S07': [
+        { name:'池田', grade:'シニア',   gradeDetail:'シニアWHC②',   totalTreatments:2100, salary:'295,000円', hourly:'1,560円' },
+        { name:'橋本', grade:'ミドル',   gradeDetail:'ミドルWHC②',   totalTreatments:520, salary:'245,000円', hourly:'1,350円' },
+        { name:'阿部', grade:'ジュニア', gradeDetail:'ジュニアWHC②', totalTreatments:70,  salary:'222,000円', hourly:'1,210円' },
+    ],
+    'S08': [
+        { name:'田村', grade:'ミドル',   gradeDetail:'ミドルWHC①',   totalTreatments:260, salary:'239,000円', hourly:'1,300円' },
+        { name:'岡田', grade:'ジュニア', gradeDetail:'ジュニアWHC①', totalTreatments:20,  salary:'215,000円', hourly:'1,180円' },
+    ],
+};
+
+// 店舗別顧客マスター
+const allCustomerData = {
+    'S01': [
+        { id:'m1', name:'山田 花子 様', kana:'やまだ はなこ', tel:'09011112222', contract:{prepaid:'¥ 24,500', sub:'加入中（骨盤）', tickets:'リフレ 3枚'}, lastVisitDate:'2026-04-18', visitCount:4 },
+        { id:'m2', name:'田中 太郎 様', kana:'たなか たろう', tel:'08033334444', contract:{prepaid:'¥ 0', sub:'未加入', tickets:'なし'}, lastVisitDate:'2026-05-02', visitCount:0 },
+        { id:'m3', name:'佐藤 恵美 様', kana:'さとう えみ', tel:'07055556666', contract:{prepaid:'¥ 102,000', sub:'加入中（フル）', tickets:'残り 10 回'}, lastVisitDate:'2026-05-15', visitCount:11 },
+        { id:'m4', name:'伊藤 健 様', kana:'いとう けん', tel:'09077778888', contract:{prepaid:'¥ 1,500', sub:'未加入', tickets:'なし'}, lastVisitDate:'2026-03-20', visitCount:1 },
+        { id:'m5', name:'渡辺 真由美 様', kana:'わたなべ まゆみ', tel:'08088889999', contract:{prepaid:'¥ 50,000', sub:'加入中（ヘッド）', tickets:'ヘッドスパ 3枚'}, lastVisitDate:'2026-05-10', visitCount:3 }
+    ],
+    'S02': [
+        { id:'m201', name:'中野 幸子 様', kana:'なかの さちこ', tel:'09012341234', contract:{prepaid:'¥ 30,000', sub:'未加入', tickets:'なし'}, lastVisitDate:'2026-05-01', visitCount:2 },
+        { id:'m202', name:'吉田 美咲 様', kana:'よしだ みさき', tel:'08056785678', contract:{prepaid:'¥ 0', sub:'加入中（骨盤）', tickets:'なし'}, lastVisitDate:'2026-04-25', visitCount:6 },
+    ],
+    'S03': [
+        { id:'m301', name:'新垣 結衣 様', kana:'あらがき ゆい', tel:'09098769876', contract:{prepaid:'¥ 80,000', sub:'加入中（フル）', tickets:'整体 5枚'}, lastVisitDate:'2026-05-14', visitCount:20 },
+    ],
+    'S04': [
+        { id:'m401', name:'西田 さくら 様', kana:'にしだ さくら', tel:'09000010001', contract:{prepaid:'¥ 15,000', sub:'未加入', tickets:'なし'}, lastVisitDate:'2026-04-30', visitCount:3 },
+    ],
+    'S05': [], 'S06': [], 'S07': [], 'S08': [],
+};
+
+// 店舗別当日顧客
+const allTodayCustomersData = {
+    'S01': [
+        { id:'c1', customerId:'m1', name:'山田 花子 様', time:'11:00 - 12:30', course:'整体 90分', staff:'佐藤', status:'会計待ち', contract:{prepaid:'¥ 24,500', sub:'加入中（骨盤）', tickets:'リフレ 3枚'}, visitCount:4, lastVisitDate:'2026-04-18', treatmentTime:90 },
+        { id:'c2', customerId:'m2', name:'田中 太郎 様', time:'15:00 - 16:00', course:'整体 60分', staff:'鈴木', status:'施術中', contract:{prepaid:'¥ 0', sub:'未加入', tickets:'なし'}, visitCount:0, lastVisitDate:'2026-05-02', treatmentTime:60 },
+    ],
+    'S02': [
+        { id:'c201', customerId:'m201', name:'中野 幸子 様', time:'10:00 - 11:00', course:'整体 60分', staff:'伊藤', status:'会計待ち', contract:{prepaid:'¥ 30,000', sub:'未加入', tickets:'なし'}, visitCount:2, lastVisitDate:'2026-05-01', treatmentTime:60 },
+        { id:'c202', customerId:'m202', name:'吉田 美咲 様', time:'13:00 - 14:30', course:'整体 90分', staff:'渡辺', status:'施術中', contract:{prepaid:'¥ 0', sub:'加入中（骨盤）', tickets:'なし'}, visitCount:6, lastVisitDate:'2026-04-25', treatmentTime:90 },
+    ],
+    'S03': [
+        { id:'c301', customerId:'m301', name:'新垣 結衣 様', time:'11:30 - 13:20', course:'整体 90分', staff:'中村', status:'施術中', contract:{prepaid:'¥ 80,000', sub:'加入中（フル）', tickets:'整体 5枚'}, visitCount:20, lastVisitDate:'2026-05-14', treatmentTime:90 },
+    ],
+    'S04': [
+        { id:'c401', customerId:'m401', name:'西田 さくら 様', time:'14:00 - 15:00', course:'整体 60分', staff:'松本', status:'会計待ち', contract:{prepaid:'¥ 15,000', sub:'未加入', tickets:'なし'}, visitCount:3, lastVisitDate:'2026-04-30', treatmentTime:60 },
+    ],
+    'S05': [], 'S06': [], 'S07': [], 'S08': [],
+};
+
+// 店舗別日報
+const allDailyReportsData = {
+    'S01': [
+        { id:'r1', timestamp:'2026/05/20 11:30', date:'2026/05/20', staff:'佐藤', customerName:'山田 花子 様', paymentMethod:'スマート支払', nextBooking:true, missionCleared:true, newMember:false, productsSold:0, treatmentTime:60 },
+        { id:'r2', timestamp:'2026/05/20 13:10', date:'2026/05/20', staff:'鈴木', customerName:'田中 太郎 様', paymentMethod:'クレジット', nextBooking:false, missionCleared:true, newMember:true, productsSold:0, treatmentTime:45 },
+        { id:'r3', timestamp:'2026/05/20 14:45', date:'2026/05/20', staff:'高橋', customerName:'佐藤 恵美 様', paymentMethod:'現金', nextBooking:true, missionCleared:false, newMember:false, productsSold:1, treatmentTime:90 },
+    ],
+    'S02': [
+        { id:'r201', timestamp:'2026/05/20 12:00', date:'2026/05/20', staff:'渡辺', customerName:'吉田 美咲 様', paymentMethod:'サブスク', nextBooking:true, missionCleared:true, newMember:false, productsSold:0, treatmentTime:90 },
+    ],
+    'S03': [], 'S04': [], 'S05': [], 'S06': [], 'S07': [], 'S08': [],
+};
+
+// 店舗別サマリー（静的な営業実績サンプル）
+const storeSummaryStats = {
+    'S01': { staffCount:3, todayCustomers:6, completedToday:3, estimatedRevenue:42000, occupancyRate:78 },
+    'S02': { staffCount:2, todayCustomers:4, completedToday:1, estimatedRevenue:24000, occupancyRate:65 },
+    'S03': { staffCount:3, todayCustomers:5, completedToday:0, estimatedRevenue:33000, occupancyRate:71 },
+    'S04': { staffCount:2, todayCustomers:4, completedToday:1, estimatedRevenue:28000, occupancyRate:68 },
+    'S05': { staffCount:2, todayCustomers:3, completedToday:2, estimatedRevenue:18000, occupancyRate:55 },
+    'S06': { staffCount:2, todayCustomers:2, completedToday:1, estimatedRevenue:15000, occupancyRate:48 },
+    'S07': { staffCount:3, todayCustomers:7, completedToday:4, estimatedRevenue:55000, occupancyRate:83 },
+    'S08': { staffCount:2, todayCustomers:3, completedToday:1, estimatedRevenue:20000, occupancyRate:60 },
+};
+
+// =============================================
+// 状態変数
+// =============================================
+let currentStoreId = 'S01';
+let currentRole = '本部';
+let currentTab = 'staff-view';
+
+let staffList = [];
+let customerMaster = [];
+let todayCustomers = [];
+let dailyReports = [];
+
+let selectedItems = [];
+let currentMethod = null;
+let activeCustomer = null;
+let pendingAddCustomer = null;
+let activeMasterFormType = 'menu';
+
+// =============================================
+// ユーティリティ
+// =============================================
+function getDaysSince(dateString) {
+    if (!dateString) return '初回';
+    const diff = Math.ceil(Math.abs(new Date() - new Date(dateString)) / 86400000);
+    return `${diff}日前`;
+}
+
+function getDefaultMission(visitCount) {
+    const n = visitCount + 1;
+    if (n === 1) return '姿勢分析を行い、骨盤ゆがみと未病ケアの基本概念をご案内。';
+    if (n === 2) return '前回からの仙骨の安定度を比較し、定期水分補給をご案内。';
+    if (n === 3) return '睡眠の質（自律神経ゆらぎ）向上に向けたツボ・おうちマッサージをご案内。';
+    if (n <= 10) return '定期ケア: 仙骨周囲を暖める温活・深呼吸ストレッチをご案内。';
+    return 'VIP定期ケア: 季節の更年期ゆらぎ（むくみ・自律神経）ケアとハーブティーをご提案。';
+}
+
+function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.innerText = msg;
+    t.classList.remove('opacity-0');
+    t.classList.add('opacity-100');
+    setTimeout(() => { t.classList.remove('opacity-100'); t.classList.add('opacity-0'); }, 4000);
+}
+
+function updateTime() {
+    const now = new Date();
+    const el = document.getElementById('clock');
+    if (el) el.innerText = String(now.getHours()).padStart(2,'0') + ':' + String(now.getMinutes()).padStart(2,'0');
+}
+
+// =============================================
+// 初期化
+// =============================================
+function initApp() {
+    updateTime();
+    setInterval(updateTime, 1000);
+    switchStore('S01');
+    switchRole('本部');
+    renderCheckoutOptions();
+    renderPaymentMethods();
+    renderMasterLists();
+}
+
+// =============================================
+// ロール・店舗切替
+// =============================================
+function switchRole(role) {
+    currentRole = role;
+    const def = roleDefs[role];
+
+    // 店舗セレクタの更新
+    const storeSel = document.getElementById('store-selector');
+    const visibleStores = def.storeIds
+        ? storesMaster.filter(s => def.storeIds.includes(s.id))
+        : storesMaster;
+
+    storeSel.innerHTML = visibleStores.map(s =>
+        `<option value="${s.id}" ${s.id === currentStoreId ? 'selected' : ''}>${s.name}</option>`
+    ).join('');
+
+    // 現在の店舗がロールの範囲外なら先頭に切替
+    if (def.storeIds && !def.storeIds.includes(currentStoreId)) {
+        currentStoreId = visibleStores[0].id;
+    }
+
+    storeSel.disabled = (role === '店長' || role === 'スタッフ');
+
+    buildTabs();
+    switchStore(currentStoreId);
+
+    // サマリーバッジ更新
+    const badge = document.getElementById('summary-role-badge');
+    if (badge) {
+        badge.textContent = `${role}ビュー`;
+        badge.className = `role-badge role-${role}`;
+    }
+}
+
+function switchStore(storeId) {
+    currentStoreId = storeId;
+    document.getElementById('store-selector').value = storeId;
+
+    staffList = JSON.parse(JSON.stringify(allStaffData[storeId] || []));
+    customerMaster = JSON.parse(JSON.stringify(allCustomerData[storeId] || []));
+    todayCustomers = JSON.parse(JSON.stringify(allTodayCustomersData[storeId] || []));
+    dailyReports = JSON.parse(JSON.stringify(allDailyReportsData[storeId] || []));
+
+    todayCustomers.forEach(c => { if (!c.mission) c.mission = getDefaultMission(c.visitCount); });
+
+    const store = storesMaster.find(s => s.id === storeId);
+    const badge = document.getElementById('current-store-badge');
+    if (badge) badge.textContent = store ? `${store.name} (${store.type})` : '';
+
+    renderAll();
+}
+
+function syncStoreData() {
+    allTodayCustomersData[currentStoreId] = JSON.parse(JSON.stringify(todayCustomers));
+    allDailyReportsData[currentStoreId] = JSON.parse(JSON.stringify(dailyReports));
+    allStaffData[currentStoreId] = JSON.parse(JSON.stringify(staffList));
+}
+
+// =============================================
+// タブ
+// =============================================
+function buildTabs() {
+    const def = roleDefs[currentRole];
+    const container = document.getElementById('tab-container');
+    container.innerHTML = tabDefs
+        .filter(t => def.tabAccess.includes(t.id))
+        .map(t => `
+            <button onclick="switchTab('${t.id}')" id="tab-${t.id}"
+                    class="tab-btn ${currentTab === t.id ? 'active' : ''}">
+                <i class="fas ${t.icon}"></i> ${t.label}
+            </button>
+        `).join('');
+
+    // 初期タブが権限外なら最初のタブへ
+    if (!def.tabAccess.includes(currentTab)) {
+        currentTab = def.tabAccess[0];
+    }
+    showSection(currentTab);
+}
+
+function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const btn = document.getElementById(`tab-${tab}`);
+    if (btn) btn.classList.add('active');
+    showSection(tab);
+    if (tab === 'evaluation') { renderDailyReportsTable(); loadStaffEvaluation(); }
+    if (tab === 'store-summary') renderStoreSummary();
+}
+
+function showSection(tab) {
+    ['store-summary','staff-view','search','evaluation','master'].forEach(s => {
+        const el = document.getElementById(`section-${s}`);
+        if (el) el.classList.toggle('hidden', s !== tab);
+    });
+}
+
+// =============================================
+// 全店舗サマリー
+// =============================================
+function renderStoreSummary() {
+    const def = roleDefs[currentRole];
+    const visibleStores = def.storeIds
+        ? storesMaster.filter(s => def.storeIds.includes(s.id))
+        : storesMaster;
+
+    const grid = document.getElementById('store-summary-grid');
+    grid.innerHTML = visibleStores.map(store => {
+        const stats = storeSummaryStats[store.id] || {};
+        // Merge live data for current store
+        if (store.id === currentStoreId) {
+            stats.completedToday = dailyReports.filter(r => r.date === '2026/05/20').length;
+            stats.todayCustomers = todayCustomers.length + stats.completedToday;
+        }
+        const occ = stats.occupancyRate || 0;
+        const occColor = occ >= 75 ? 'text-emerald-600' : occ >= 60 ? 'text-amber-600' : 'text-red-500';
+        const typeBadge = store.type === '直営'
+            ? 'bg-blue-100 text-blue-700 border-blue-200'
+            : 'bg-violet-100 text-violet-700 border-violet-200';
+
+        return `
+            <div class="store-card bg-white rounded-2xl border border-pink-100 shadow-sm p-4 cursor-pointer hover:border-pink-300"
+                 onclick="jumpToStore('${store.id}')">
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <div class="flex items-center gap-1.5 mb-0.5">
+                            <span class="text-[9px] font-bold border px-1.5 py-0.5 rounded-full ${typeBadge}">${store.type}</span>
+                            <span class="text-[9px] text-gray-400 font-bold">${store.area}</span>
+                        </div>
+                        <h3 class="font-black text-pink-900 text-sm">${store.name}</h3>
+                    </div>
+                    <span class="${store.id === currentStoreId ? 'bg-pink-500 text-white' : 'bg-gray-100 text-gray-400'} text-[8px] font-bold px-2 py-0.5 rounded-full">
+                        ${store.id === currentStoreId ? '表示中' : '切替'}
+                    </span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                    <div class="bg-pink-50 rounded-lg p-2 text-center">
+                        <div class="text-[9px] text-pink-400 font-bold">本日来店</div>
+                        <div class="font-black text-pink-900">${stats.todayCustomers || 0}名</div>
+                    </div>
+                    <div class="bg-pink-50 rounded-lg p-2 text-center">
+                        <div class="text-[9px] text-pink-400 font-bold">会計済</div>
+                        <div class="font-black text-pink-900">${stats.completedToday || 0}名</div>
+                    </div>
+                    <div class="bg-pink-50 rounded-lg p-2 text-center">
+                        <div class="text-[9px] text-pink-400 font-bold">出勤スタッフ</div>
+                        <div class="font-black text-pink-900">${stats.staffCount || 0}名</div>
+                    </div>
+                    <div class="bg-pink-50 rounded-lg p-2 text-center">
+                        <div class="text-[9px] text-pink-400 font-bold">想定売上</div>
+                        <div class="font-black text-pink-900">¥${(stats.estimatedRevenue || 0).toLocaleString()}</div>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between text-[10px] font-bold">
+                    <span class="text-gray-500">稼働率</span>
+                    <div class="flex items-center gap-2 flex-1 ml-3">
+                        <div class="flex-1 bg-gray-100 rounded-full h-1.5">
+                            <div class="h-1.5 rounded-full ${occ >= 75 ? 'bg-emerald-400' : occ >= 60 ? 'bg-amber-400' : 'bg-red-400'}"
+                                 style="width:${occ}%"></div>
+                        </div>
+                        <span class="${occColor} font-black font-mono">${occ}%</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function jumpToStore(storeId) {
+    document.getElementById('store-selector').value = storeId;
+    switchStore(storeId);
+    switchTab('staff-view');
+}
+
+// =============================================
+// スタッフ別稼働ボード
+// =============================================
+function renderAll() {
+    renderStaffLanes();
+    renderDailyReportsTable();
+    initStaffSelector();
+    if (currentTab === 'store-summary') renderStoreSummary();
+}
+
+function renderStaffLanes() {
+    const container = document.getElementById('staff-lanes-container');
+    const def = roleDefs[currentRole];
+    const visibleStaff = (currentRole === 'スタッフ' && def.staffName)
+        ? staffList.filter(s => s.name === def.staffName)
+        : staffList;
+
+    container.innerHTML = visibleStaff.map(staff => {
+        const customers = todayCustomers.filter(c => c.staff === staff.name);
+        return `
+            <div class="staff-column h-full flex flex-col">
+                <div class="bg-pink-200 p-3 rounded-t-2xl border-x border-t border-pink-300 flex items-center justify-between shadow-xs">
+                    <div class="flex items-center gap-2">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(staff.name)}&background=ec4899&color=fff&bold=true" class="w-7 h-7 rounded-full border-2 border-white shadow-xs">
+                        <div>
+                            <span class="font-black text-pink-900 text-xs">${staff.name}</span>
+                            <span class="text-[8px] font-bold text-pink-600 block">${staff.gradeDetail}</span>
+                        </div>
+                    </div>
+                    <span class="bg-pink-500 text-white text-[9px] px-2 py-0.5 rounded-full font-bold">${customers.length}名</span>
+                </div>
+                <div class="flex-1 bg-white/50 border-x border-b border-pink-200 rounded-b-2xl p-2 space-y-3 overflow-y-auto shadow-inner min-h-[200px]">
+                    ${customers.map(c => renderCustomerCard(c)).join('')}
+                    <button onclick="openStaffAddSearch('${staff.name}')"
+                            class="w-full border-2 border-dashed border-pink-200 text-pink-400 hover:border-pink-400 hover:text-pink-600 text-[10px] font-bold py-2 rounded-xl transition flex items-center justify-center gap-1">
+                        <i class="fas fa-plus"></i> 顧客をアサイン
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function renderCustomerCard(c) {
+    return `
+        <div class="bg-white rounded-xl border animate-pop ${c.status === '会計待ち' ? 'border-pink-500 ring-2 ring-pink-500/10 shadow-md' : 'border-pink-100'} p-3 hover:scale-[1.01] transition-all">
+            <div class="flex justify-between items-start mb-1.5">
+                <div class="text-[9px] font-bold text-pink-400"><i class="far fa-clock mr-1"></i>${c.time}</div>
+                <span class="text-[8px] font-bold px-1.5 py-0.5 rounded ${c.status === '会計待ち' ? 'bg-pink-500 text-white' : 'bg-pink-100 text-pink-500'}">${c.status}</span>
+            </div>
+            <div class="flex items-end gap-1.5 mb-1.5">
+                <div class="text-sm font-black text-pink-900 leading-none">${c.name}</div>
+                <div class="text-[9px] font-bold bg-pink-100 text-pink-600 px-1.5 py-0.5 rounded-md leading-none">${c.visitCount + 1}回目</div>
+            </div>
+            <div class="flex items-center gap-2 mb-2 text-[10px]">
+                <span class="text-gray-400 font-bold">前回：<span class="text-pink-500 font-mono">${getDaysSince(c.lastVisitDate)}</span></span>
+                <span class="text-pink-400 font-bold truncate">/ ${c.course}</span>
+            </div>
+            <div class="bg-pink-50/70 rounded-lg p-2 border border-pink-100 flex gap-2 items-start mb-2">
+                <i class="fas fa-bullseye text-pink-400 text-[10px] mt-0.5"></i>
+                <div class="flex flex-col flex-1">
+                    <span class="text-[8px] font-bold text-pink-500 leading-none mb-0.5">未病ケア提案ミッション</span>
+                    <span class="text-[9px] font-bold text-pink-900 leading-tight">${c.mission || '設定なし'}</span>
+                </div>
+            </div>
+            <button onclick="openCheckout('${c.id}')" class="w-full text-[10px] font-bold bg-pink-500 text-white py-1.5 rounded-lg shadow-xs hover:bg-pink-600 transition flex items-center justify-center gap-1">
+                <i class="fas fa-check-double"></i> 施術終了・会計
+            </button>
+        </div>
+    `;
+}
+
+// =============================================
+// 顧客検索・アサイン
+// =============================================
+function handleGlobalSearch(e) {
+    if (e.key !== 'Enter') return;
+    const q = e.target.value;
+    if (!q) return;
+    switchTab('search');
+    document.getElementById('customer-search-input').value = q;
+    searchCustomers();
+}
+
+function searchCustomers() {
+    const q = document.getElementById('customer-search-input').value.toLowerCase().replace(/-/g,'');
+    if (!q) return;
+    const results = customerMaster.filter(c =>
+        c.name.includes(q) || c.kana.includes(q) || c.tel.replace(/-/g,'').includes(q)
+    );
+    document.getElementById('search-count').innerText = `${results.length}件`;
+    const container = document.getElementById('search-results');
+    if (!results.length) {
+        container.innerHTML = `<p class="text-xs text-gray-400 p-4 font-bold col-span-full text-center">該当する会員様が見つかりませんでした。</p>`;
+        return;
+    }
+    container.innerHTML = results.map(c => `
+        <div class="bg-white border border-pink-200 p-3 rounded-2xl flex justify-between items-center hover:bg-pink-50 transition shadow-xs">
+            <div>
+                <div class="text-[9px] font-bold text-pink-400">来店：${c.visitCount}回目（前回 ${getDaysSince(c.lastVisitDate)}）</div>
+                <div class="text-sm font-black text-pink-900">${c.name}</div>
+                <div class="text-[10px] text-gray-400 font-bold"><i class="fas fa-phone-alt mr-1 text-[9px]"></i>${c.tel}</div>
+            </div>
+            <button onclick="requestAddCustomer('${c.id}')" class="bg-pink-500 text-white font-black px-4 py-1.5 rounded-xl text-xs hover:bg-pink-600 shadow-sm transition">本日アサイン</button>
+        </div>
+    `).join('');
+}
+
+function openStaffAddSearch(staffName) {
+    switchTab('search');
+    document.getElementById('customer-search-input').focus();
+}
+
+function requestAddCustomer(masterId) {
+    pendingAddCustomer = customerMaster.find(c => c.id === masterId);
+    if (!pendingAddCustomer) return;
+    const info = document.getElementById('pending-customer-info');
+    info.innerHTML = `<i class="fas fa-user mr-1"></i>${pendingAddCustomer.name} <span class="text-pink-400 ml-2">来店${pendingAddCustomer.visitCount}回</span>`;
+    const container = document.getElementById('staff-select-buttons');
+    container.innerHTML = staffList.map(s => `
+        <button onclick="confirmAddCustomer('${s.name}')"
+                class="w-full py-2.5 bg-pink-50 border border-pink-200 rounded-xl text-xs font-bold text-pink-900 hover:bg-pink-500 hover:text-white transition shadow-sm flex items-center gap-2 px-3">
+            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(s.name)}&background=ec4899&color=fff&bold=true&size=28" class="w-6 h-6 rounded-full">
+            ${s.name} <span class="text-[9px] opacity-60">${s.gradeDetail}</span>
+        </button>
+    `).join('');
+    document.getElementById('modal-staff-select').classList.remove('hidden');
+}
+
+function closeStaffSelect() {
+    document.getElementById('modal-staff-select').classList.add('hidden');
+}
+
+function confirmAddCustomer(staffName) {
+    if (!pendingAddCustomer) return;
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    todayCustomers.push({
+        id: 'c' + Date.now(),
+        customerId: pendingAddCustomer.id,
+        name: pendingAddCustomer.name,
+        time: `${timeStr} - 来店`,
+        course: '追加予約',
+        staff: staffName,
+        status: '予約中',
+        contract: pendingAddCustomer.contract,
+        visitCount: pendingAddCustomer.visitCount,
+        lastVisitDate: pendingAddCustomer.lastVisitDate,
+        mission: getDefaultMission(pendingAddCustomer.visitCount)
+    });
+    syncStoreData();
+    closeStaffSelect();
+    switchTab('staff-view');
+    renderStaffLanes();
+    showToast(`${pendingAddCustomer.name}を${staffName}のレーンに追加しました`);
+}
+
+// =============================================
+// 一括ミッション変更
+// =============================================
+function openBatchMissionModal() {
+    document.getElementById('batch-customer-count').textContent = todayCustomers.length;
+    document.getElementById('batch-mission-text').value = '';
+    document.getElementById('modal-batch-mission').classList.remove('hidden');
+}
+
+function closeBatchMissionModal() {
+    document.getElementById('modal-batch-mission').classList.add('hidden');
+}
+
+function setBatchTemplate(text) {
+    document.getElementById('batch-mission-text').value = text;
+}
+
+function applyBatchMission() {
+    const text = document.getElementById('batch-mission-text').value.trim();
+    if (!text) { showToast('ミッション内容を入力してください'); return; }
+    todayCustomers.forEach(c => c.mission = text);
+    syncStoreData();
+    renderStaffLanes();
+    closeBatchMissionModal();
+    showToast('全員の未病ケアミッションを一斉更新しました');
+}
+
+// =============================================
+// 会計モーダル
+// =============================================
+function openCheckout(customerId) {
+    activeCustomer = todayCustomers.find(c => c.id === customerId);
+    if (!activeCustomer) return;
+    selectedItems = [];
+    currentMethod = null;
+    document.getElementById('checkout-title').innerText = `${activeCustomer.name} (本日${activeCustomer.visitCount + 1}回目) 施術＆評価レポート`;
+    document.getElementById('mission-input').value = activeCustomer.mission || '';
+    document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('selected-method-display').innerText = '未選択';
+    document.getElementById('customer-balance-box').classList.add('hidden');
+    document.getElementById('chk-next-booking').checked = false;
+    document.getElementById('chk-new-member').checked = false;
+    document.getElementById('chk-mission').checked = false;
+    document.getElementById('product-sold-qty').value = 0;
+    const staffObj = staffList.find(s => s.name === activeCustomer.staff);
+    document.getElementById('active-staff-role-badge').innerText = staffObj ? staffObj.gradeDetail : 'WHC';
+    const matchingMenu = menuData.find(m => activeCustomer.course.includes(m.name.split(' ')[0]));
+    if (matchingMenu) addCheckoutItem(matchingMenu.id);
+    updateCheckoutSummary();
+    document.getElementById('modal-checkout').classList.remove('hidden');
+}
+
+function closeCheckout() {
+    document.getElementById('modal-checkout').classList.add('hidden');
+}
+
+function renderCheckoutOptions() {
+    document.getElementById('checkout-menu-options').innerHTML = menuData.map(item => `
+        <button onclick="addCheckoutItem(${item.id})" class="p-2 bg-white border border-pink-200 rounded-lg hover:border-pink-500 transition text-left shadow-xs flex flex-col justify-between h-14">
+            <span class="text-[9px] font-bold text-pink-900 leading-tight block">${item.name}</span>
+            <span class="text-[10px] font-mono text-pink-500 block">¥${item.price.toLocaleString()}</span>
+        </button>
+    `).join('');
+    document.getElementById('checkout-product-options').innerHTML = productData.map(item => `
+        <button onclick="addCheckoutProduct(${item.id})" class="p-2 bg-pink-50/50 border border-pink-200 rounded-lg hover:border-pink-500 transition text-left shadow-xs flex flex-col justify-between h-14">
+            <span class="text-[9px] font-bold text-pink-900 leading-tight block">${item.name}</span>
+            <span class="text-[10px] font-mono text-pink-600 block">¥${item.price.toLocaleString()}</span>
+        </button>
+    `).join('');
+}
+
+function renderPaymentMethods() {
+    document.getElementById('payment-methods').innerHTML = paymentMethods.map(m => `
+        <button id="method-${m.id}" onclick="selectPaymentMethod('${m.id}')"
+                class="method-btn flex flex-col items-center justify-center p-2 border border-pink-200 rounded-xl bg-white hover:bg-pink-50 transition gap-1 h-16 shadow-xs">
+            <i class="fas ${m.icon} text-pink-400 text-sm"></i>
+            <span class="text-[9px] font-bold block leading-none">${m.name}</span>
+        </button>
+    `).join('');
+}
+
+function addCheckoutItem(id) {
+    const menu = menuData.find(m => m.id === id);
+    if (menu) selectedItems.push({ ...menu, uid: Date.now() + Math.random(), isProduct: false });
+    updateCheckoutSummary();
+}
+
+function addCheckoutProduct(id) {
+    const p = productData.find(m => m.id === id);
+    if (p) {
+        selectedItems.push({ ...p, uid: Date.now() + Math.random(), isProduct: true, time: 0 });
+        const qty = document.getElementById('product-sold-qty');
+        qty.value = parseInt(qty.value) + 1;
+    }
+    updateCheckoutSummary();
+}
+
+function removeCheckoutItem(uid) {
+    const item = selectedItems.find(i => i.uid === uid);
+    if (item && item.isProduct) {
+        const qty = document.getElementById('product-sold-qty');
+        qty.value = Math.max(0, parseInt(qty.value) - 1);
+    }
+    selectedItems = selectedItems.filter(i => i.uid !== uid);
+    updateCheckoutSummary();
+}
+
+function updateCheckoutSummary() {
+    let total = 0;
+    document.getElementById('checkout-items').innerHTML = selectedItems.map(item => {
+        total += item.price;
+        return `
+            <div class="flex justify-between items-center bg-white p-2 rounded-lg border border-pink-100 shadow-xs">
+                <div>
+                    <span class="text-[10px] font-bold text-pink-900 block">${item.name}</span>
+                    <span class="text-[9px] text-pink-400 font-mono">${item.isProduct ? '物販' : item.time + '分'} / ¥${item.price.toLocaleString()}</span>
+                </div>
+                <button onclick="removeCheckoutItem(${item.uid})" class="text-pink-300 hover:text-red-500 transition">
+                    <i class="fas fa-minus-circle text-xs"></i>
+                </button>
+            </div>
+        `;
+    }).join('');
+    document.getElementById('checkout-total').innerText = `¥ ${total.toLocaleString()}`;
+}
+
+function selectPaymentMethod(id) {
+    document.querySelectorAll('.method-btn').forEach(b => b.classList.remove('active'));
+    const el = document.getElementById(`method-${id}`);
+    if (el) el.classList.add('active');
+    currentMethod = paymentMethods.find(m => m.id === id);
+    document.getElementById('selected-method-display').innerText = currentMethod.name;
+    const balanceBox = document.getElementById('customer-balance-box');
+    balanceBox.classList.add('hidden');
+    if (!activeCustomer) return;
+    if (id === 'prepaid') {
+        document.getElementById('balance-label').innerText = '現在のプリペイド残高';
+        document.getElementById('balance-value').innerText = activeCustomer.contract.prepaid;
+        balanceBox.classList.remove('hidden');
+    } else if (id === 'ticket') {
+        document.getElementById('balance-label').innerText = '保有チケット';
+        document.getElementById('balance-value').innerText = activeCustomer.contract.tickets;
+        balanceBox.classList.remove('hidden');
+    } else if (id === 'sub') {
+        document.getElementById('balance-label').innerText = 'サブスク加入プラン';
+        document.getElementById('balance-value').innerText = activeCustomer.contract.sub;
+        balanceBox.classList.remove('hidden');
+    }
+}
+
+function updateMission(val) {
+    if (activeCustomer) { activeCustomer.mission = val; renderStaffLanes(); }
+}
+
+function processPayment() {
+    if (!selectedItems.length) return showToast('施術メニューまたは商品を選択してください');
+    if (!currentMethod) return showToast('お支払い方法を選択してください');
+    const now = new Date();
+    const ts = `${now.getFullYear()}/${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const dateStr = ts.split(' ')[0];
+    const totalTime = selectedItems.filter(i => !i.isProduct).reduce((s, i) => s + i.time, 0);
+    dailyReports.unshift({
+        id: 'r' + Date.now(),
+        timestamp: ts, date: dateStr,
+        staff: activeCustomer.staff,
+        customerName: activeCustomer.name,
+        paymentMethod: currentMethod.name,
+        nextBooking: document.getElementById('chk-next-booking').checked,
+        missionCleared: document.getElementById('chk-mission').checked,
+        newMember: document.getElementById('chk-new-member').checked,
+        productsSold: parseInt(document.getElementById('product-sold-qty').value) || 0,
+        treatmentTime: totalTime
+    });
+    const idx = staffList.findIndex(s => s.name === activeCustomer.staff);
+    if (idx !== -1) staffList[idx].totalTreatments++;
+    todayCustomers = todayCustomers.filter(c => c.id !== activeCustomer.id);
+    syncStoreData();
+    renderStaffLanes();
+    renderDailyReportsTable();
+    closeCheckout();
+    showToast('施術お会計を確定しました。人事評価（日報）へリアルタイム転送しました。');
+}
+
+// =============================================
+// 評価査定
+// =============================================
+function initStaffSelector() {
+    const select = document.getElementById('eval-staff-selector');
+    select.innerHTML = staffList.map(s =>
+        `<option value="${s.name}">${s.name} (${s.gradeDetail} - 累計施術 ${s.totalTreatments}名)</option>`
+    ).join('');
+    loadStaffEvaluation();
+}
+
+function loadStaffEvaluation() {
+    const staffName = document.getElementById('eval-staff-selector').value;
+    const staff = staffList.find(s => s.name === staffName);
+    if (!staff) return;
+    document.getElementById('eval-current-grade').innerText = staff.gradeDetail;
+    document.getElementById('eval-salary').innerText = staff.salary;
+    document.getElementById('eval-hourly').innerText = staff.hourly;
+    document.getElementById('eval-treatments-count').innerText = `${staff.totalTreatments} 人`;
+    const reports = dailyReports.filter(r => r.staff === staffName);
+    const totalMinutes = reports.reduce((s, r) => s + r.treatmentTime, 0);
+    const shiftMinutes = 480;
+    const occupancyRate = Math.round((totalMinutes / shiftMinutes) * 100);
+    document.getElementById('eval-occupancy-detail').innerText = `本日施術時間 ${totalMinutes}分 / シフト ${shiftMinutes}分`;
+    document.getElementById('eval-occupancy-val').innerText = `${occupancyRate}%`;
+    let occupancyScore = 1;
+    if (occupancyRate >= 71) occupancyScore = 5;
+    else if (occupancyRate >= 66) occupancyScore = 4;
+    else if (occupancyRate >= 60) occupancyScore = 3;
+    else if (occupancyRate >= 50) occupancyScore = 2;
+    document.getElementById('eval-occupancy-score').innerText = `${occupancyScore}点 (ウェイト2倍: ${occupancyScore * 2}点)`;
+    const newMemberCount = reports.filter(r => r.newMember).length;
+    let newMemberScore = 1;
+    if (newMemberCount >= 9) newMemberScore = 5;
+    else if (newMemberCount >= 7) newMemberScore = 4;
+    else if (newMemberCount >= 5) newMemberScore = 3;
+    else if (newMemberCount >= 3) newMemberScore = 2;
+    document.getElementById('eval-new-member-detail').innerText = `会員(プリカ等)獲得数 ${newMemberCount}件`;
+    document.getElementById('eval-new-member-val').innerText = `${newMemberCount}件`;
+    document.getElementById('eval-new-member-score').innerText = `${newMemberScore}点`;
+    let specScore = 1;
+    if (staff.grade !== 'シニア') {
+        document.getElementById('eval-special-metric-name').innerHTML = `個人既存次回予約率 <span class="text-[9px] text-pink-500">(ウェイト 1)</span>`;
+        const nextBookings = reports.filter(r => r.nextBooking).length;
+        const bookingRate = reports.length > 0 ? Math.round((nextBookings / reports.length) * 100) : 0;
+        document.getElementById('eval-special-metric-detail').innerText = `次回予約取得 ${nextBookings}件 / 施術数 ${reports.length}件`;
+        document.getElementById('eval-special-metric-val').innerText = `${bookingRate}%`;
+        if (bookingRate >= 95) specScore = 5;
+        else if (bookingRate >= 90) specScore = 4;
+        else if (bookingRate >= 80) specScore = 3;
+        else if (bookingRate >= 70) specScore = 2;
+        document.getElementById('eval-special-metric-score').innerText = `${specScore}点`;
+    } else {
+        document.getElementById('eval-special-metric-name').innerHTML = `物販件数 <span class="text-[9px] text-pink-500">(ウェイト 1)</span>`;
+        const totalProducts = reports.reduce((s, r) => s + r.productsSold, 0);
+        document.getElementById('eval-special-metric-detail').innerText = `商品販売個数 ${totalProducts}点`;
+        document.getElementById('eval-special-metric-val').innerText = `${totalProducts}件`;
+        if (totalProducts >= 9) specScore = 5;
+        else if (totalProducts >= 7) specScore = 4;
+        else if (totalProducts >= 5) specScore = 3;
+        else if (totalProducts >= 3) specScore = 2;
+        document.getElementById('eval-special-metric-score').innerText = `${specScore}点`;
+    }
+    calculateEvaluationScore(occupancyScore, specScore, newMemberScore, staff);
+}
+
+function calculateEvaluationScore(optOcc, optSpec, optNew, activeStaffObj) {
+    if (optOcc === undefined) { loadStaffEvaluation(); return; }
+    const quantScore = (optOcc * 2) + optSpec + optNew + 3;
+    const addScore = parseInt(document.getElementById('eval-add-weekend').value)
+        + parseInt(document.getElementById('eval-add-days').value)
+        + parseInt(document.getElementById('eval-add-late').value)
+        + parseInt(document.getElementById('eval-add-help').value);
+    const totalScore = quantScore + addScore;
+    document.getElementById('eval-total-score').innerText = `${totalScore} 点 （定量:${quantScore}点 + 加点:${addScore}点）`;
+    const tip1 = document.getElementById('eval-upgrade-tip-1');
+    const tip2 = document.getElementById('eval-upgrade-tip-2');
+    if (activeStaffObj.grade === 'ジュニア') {
+        tip1.innerHTML = `<i class="fas fa-check-circle text-emerald-500"></i> ジュニアWHCとして査定中。`;
+        tip2.innerHTML = `<i class="fas fa-info-circle text-pink-500"></i> ミドルWHCへの基準: スコア13点以上 ＆ 施術数200名 ＆ 稼働率60%以上`;
+        if (totalScore >= 13 && activeStaffObj.totalTreatments >= 200) {
+            tip1.innerHTML += ` <span class="bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded text-[9px]">ミドル昇格要件を満たしました！</span>`;
+        }
+    } else if (activeStaffObj.grade === 'ミドル') {
+        tip1.innerHTML = `<i class="fas fa-check-circle text-emerald-500"></i> ミドルWHCとして査定中。`;
+        tip2.innerHTML = `<i class="fas fa-info-circle text-pink-500"></i> シニアWHCへの基準: スコア19点以上 ＆ 施術数1000名 ＆ 稼働率65%以上`;
+        if (totalScore >= 19 && activeStaffObj.totalTreatments >= 1000) {
+            tip1.innerHTML += ` <span class="bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded text-[9px]">シニア昇格要件を満たしました！</span>`;
+        }
+    } else {
+        tip1.innerHTML = `<i class="fas fa-check-circle text-emerald-500"></i> シニアWHCとして査定中（物販評価適用）。`;
+        tip2.innerHTML = `<i class="fas fa-info-circle text-pink-500"></i> エキスパートWHCへの基準: スコア25点以上 ＆ 施術数2000名 ＆ 稼働率70%以上`;
+        if (totalScore >= 25 && activeStaffObj.totalTreatments >= 2000) {
+            tip1.innerHTML += ` <span class="bg-green-100 text-green-700 font-bold px-2 py-0.5 rounded text-[9px]">エキスパート昇格要件を達成！</span>`;
+        }
+    }
+}
+
+// =============================================
+// 日報テーブル
+// =============================================
+function renderDailyReportsTable() {
+    document.getElementById('daily-report-log-body').innerHTML = dailyReports.map(r => `
+        <tr class="hover:bg-pink-50/50 transition">
+            <td class="py-2 px-3 font-mono text-[10px] text-gray-400">${r.timestamp}</td>
+            <td class="py-2 px-3 font-bold text-pink-900">${r.staff}</td>
+            <td class="py-2 px-3 font-bold">${r.customerName}</td>
+            <td class="py-2 px-2 text-center">${r.nextBooking ? '<span class="bg-pink-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">獲得</span>' : '<span class="bg-gray-100 text-gray-400 text-[9px] px-1.5 py-0.5 rounded-full font-bold">獲得無</span>'}</td>
+            <td class="py-2 px-2 text-center">${r.missionCleared ? '<span class="bg-emerald-500 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">完了</span>' : '<span class="bg-gray-100 text-gray-400 text-[9px] px-1.5 py-0.5 rounded-full font-bold">未達</span>'}</td>
+            <td class="py-2 px-2 text-center">${r.newMember ? '<span class="bg-amber-400 text-pink-950 text-[9px] px-1.5 py-0.5 rounded-full font-black">新規獲得</span>' : '<span class="text-gray-300 text-[9px] font-bold">--</span>'}</td>
+            <td class="py-2 px-2 text-center font-bold font-mono text-pink-700">${r.productsSold > 0 ? r.productsSold + '点' : '--'}</td>
+            <td class="py-2 px-2 text-center font-bold font-mono text-gray-500">${r.treatmentTime}分</td>
+        </tr>
+    `).join('');
+}
+
+// =============================================
+// メニューマスター
+// =============================================
+function renderMasterLists() {
+    document.getElementById('master-menu-tbody').innerHTML = menuData.map(item => `
+        <tr class="hover:bg-pink-50/30 border-b border-pink-50">
+            <td class="py-2 font-bold text-pink-900">${item.name}</td>
+            <td class="py-2 text-center font-mono font-bold text-gray-500">${item.time}分</td>
+            <td class="py-2 text-right font-mono text-pink-600 font-bold">¥ ${item.price.toLocaleString()}</td>
+            <td class="py-2 text-center"><button onclick="deleteMasterItem(${item.id},'menu')" class="text-red-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td>
+        </tr>
+    `).join('');
+    document.getElementById('master-product-tbody').innerHTML = productData.map(item => `
+        <tr class="hover:bg-pink-50/30 border-b border-pink-50">
+            <td class="py-2 font-bold text-pink-900">${item.name}</td>
+            <td class="py-2 text-right font-mono text-pink-600 font-bold">¥ ${item.price.toLocaleString()}</td>
+            <td class="py-2 text-center"><button onclick="deleteMasterItem(${item.id},'product')" class="text-red-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></td>
+        </tr>
+    `).join('');
+}
+
+function toggleMenuForm(type) {
+    const box = document.getElementById('master-form-box');
+    if (!type) { box.classList.add('hidden'); return; }
+    activeMasterFormType = type;
+    const timeInput = document.getElementById('master-item-time');
+    document.getElementById('master-item-name').value = '';
+    document.getElementById('master-item-price').value = '';
+    timeInput.value = '';
+    timeInput.disabled = (type === 'product');
+    if (type === 'product') { timeInput.value = 0; timeInput.placeholder = '不要 (0分)'; }
+    else { timeInput.placeholder = '施術時間 (分)'; }
+    box.classList.remove('hidden');
+}
+
+function saveNewMasterItem() {
+    const name = document.getElementById('master-item-name').value;
+    const price = parseInt(document.getElementById('master-item-price').value);
+    const time = parseInt(document.getElementById('master-item-time').value) || 0;
+    if (!name || isNaN(price)) return showToast('入力内容を確認してください');
+    if (activeMasterFormType === 'menu') {
+        menuData.push({ id: Date.now(), name, price, time });
+        showToast('施術メニューを新しく登録しました');
+    } else {
+        productData.push({ id: Date.now(), name, price });
+        showToast('物販商品を新しく登録しました');
+    }
+    toggleMenuForm();
+    renderMasterLists();
+    renderCheckoutOptions();
+}
+
+function deleteMasterItem(id, type) {
+    if (type === 'menu') menuData = menuData.filter(m => m.id !== id);
+    else productData = productData.filter(p => p.id !== id);
+    renderMasterLists();
+    renderCheckoutOptions();
+    showToast('マスタから削除しました');
+}
+</script>
 </body>
 </html>
