@@ -308,14 +308,28 @@
                                 <div class="text-[10px] text-gray-400">/2回（月額定額プラン）</div>
                             </div>
 
-                            <!-- 当日契約で30%OFF（控えめ表記） -->
-                            <div class="bg-gray-50 border border-gray-200 rounded-xl p-2.5 mb-4 text-left">
-                                <p class="text-[10px] text-gray-500">当日のご契約なら<span class="font-bold text-[#5D4037]">20%OFF→30%OFF</span>に</p>
-                                <p class="text-[10px] text-gray-400 mt-0.5">11,704円/1回・23,408円/2回（月額定額プラン）</p>
+                            <!-- 当日契約限定 30%OFF ハイライト -->
+                            <div class="bg-gradient-to-r from-[#E53E3E] to-[#F4695E] rounded-2xl p-3 mb-4 text-white relative overflow-hidden">
+                                <p class="inline-block text-xs font-black tracking-wide mb-2 bg-white text-[#E53E3E] px-3 py-1 rounded-full shadow">🎉 当日ご契約限定キャンペーン!!</p>
+                                <p class="text-sm font-black leading-tight mb-1">今だけ 20%OFF→<span class="text-lg">30%OFF</span>！！</p>
+                                <div class="flex items-baseline justify-center gap-1 flex-wrap">
+                                    <span class="text-[11px] line-through opacity-80">定価 16,720円/1回</span>
+                                    <span class="text-2xl font-black">11,704円</span>
+                                    <span class="text-[10px] font-bold bg-amber-300 text-white px-2 py-0.5 rounded-full whitespace-nowrap">5,016円お得!</span>
+                                    <span class="text-[10px]">/1回（月額定額プラン）</span>
+                                </div>
+                                <div class="bg-white/20 rounded-xl p-2.5 border border-white/40 mt-2">
+                                    <div class="text-[10px] opacity-90 mb-0.5">（当日契約限定キャンペーン価格）</div>
+                                    <div class="text-[11px] line-through opacity-70">定価 33,440円/2回</div>
+                                    <div class="flex items-center justify-center gap-2 flex-wrap">
+                                        <span class="text-xl font-black text-white">23,408円/2回（月額定額プラン）</span>
+                                        <span class="text-[10px] font-bold bg-amber-300 text-white px-2 py-0.5 rounded-full whitespace-nowrap">10,032円お得!</span>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="mt-auto border-t border-dashed border-gray-100 pt-4">
-                                <p class="text-[10px] font-bold text-gray-400 mb-2">＼こちらからお申し込み／</p>
+                                <p class="text-[10px] font-bold text-gray-400 mb-2">＼当日ご契約30%OFFで申し込む／</p>
                                 <div id="qr-special" class="bg-white p-1 inline-block border border-gray-100 rounded-lg shadow-inner"></div>
                                 <div class="text-[8px] text-gray-300 break-all mt-1" id="url-special"></div>
                             </div>
@@ -335,46 +349,6 @@
                             数十万人の女性の不調をケアしてきた実績があるからこそご用意できるプランです。<br>
                             詳しくは下記「全額返金保証」の項目をご確認ください。
                         </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ====== 回数券 ====== -->
-        <div id="sec-ticket" class="bg-white rounded-3xl shadow-md border border-pink-100 overflow-hidden">
-            <button onclick="toggleAccordion('acc-ticket')"
-                class="accordion-btn w-full flex items-center justify-between px-6 py-5 text-left hover:bg-[#FFF5F7] transition">
-                <div class="flex items-center gap-3">
-                    <span class="text-2xl">🎫</span>
-                    <div>
-                        <h4 class="font-bold text-lg text-[#5D4037]">回数券</h4>
-                        <p class="text-xs text-gray-400 mt-0.5">土台期スタートにおすすめ · 有効期限2ヶ月</p>
-                    </div>
-                </div>
-                <svg class="chevron w-5 h-5 text-[#E98B9F] shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                </svg>
-            </button>
-            <div id="acc-ticket" class="accordion-body">
-                <div class="px-6 pb-7 pt-2">
-                    <div class="bg-white border-2 border-[#F4A6B6] rounded-2xl p-6 max-w-xl mx-auto text-center relative">
-                        <div class="absolute top-0 right-0 bg-[#FFF5F7] text-[#E98B9F] text-xs font-bold px-4 py-1.5 rounded-bl-xl border-b border-l border-pink-100">※有効期限2カ月間</div>
-                        <span class="inline-block bg-[#F4A6B6] text-white font-bold px-4 py-1 rounded-full text-sm mb-4 mt-2">土台期応援プラン 70分整体3回券</span>
-                        <div class="bg-[#FFF5F7] p-5 rounded-2xl mb-5 relative">
-                            <div class="absolute -top-3 -right-2 bg-[#E53E3E] text-white text-xs font-bold px-3 py-1 rounded-full rotate-12 shadow-sm">15% OFF</div>
-                            <div class="text-sm text-gray-400 line-through">通常 31,920円</div>
-                            <div class="text-4xl font-black text-[#E98B9F] my-1">27,000<span class="text-xl">円</span></div>
-                            <div class="text-[#E53E3E] font-bold text-sm">4,920円もおトク！</div>
-                        </div>
-                        <div class="flex justify-center items-center gap-2 text-xs text-[#8E5E65] overflow-x-auto pb-1">
-                            <div class="bg-white border p-2 rounded-lg min-w-[60px]">初回</div>
-                            <svg class="w-3 h-3 text-pink-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                            <div class="bg-white border p-2 rounded-lg min-w-[60px]">1週後<br>2回目</div>
-                            <svg class="w-3 h-3 text-pink-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                            <div class="bg-white border p-2 rounded-lg min-w-[60px]">2週後<br>3回目</div>
-                            <svg class="w-3 h-3 text-pink-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                            <div class="bg-white border p-2 rounded-lg min-w-[60px]">3週後<br>4回目</div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -464,7 +438,7 @@
     const SUBS_LINKS = {
         light:    "https://web.online.airpayment.jp/payment?planId=PLClZTeWdjKJWXGmu1", // ライトプラン 15%OFF
         standard: "https://web.online.airpayment.jp/payment?planId=PLDH8bEhe7KaH4Qysv", // スタンダードプラン 当日契約30%OFF
-        special:  "https://web.online.airpayment.jp/payment?planId=PLfg3MP3oEIaqpPdAR"  // スペシャルプラン 20%OFF
+        special:  "https://web.online.airpayment.jp/payment?planId=PLXOrDYMliTDofXKGR"  // スペシャルプラン 当日契約30%OFF
     };
 
     const phaseDetails = [
