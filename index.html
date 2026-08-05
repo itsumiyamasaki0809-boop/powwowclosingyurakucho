@@ -99,9 +99,22 @@
             <p class="text-sm text-gray-400 mt-1">理想的な来店ペースと、女性ホルモンの波との関係を確認しましょう。</p>
         </div>
 
-        <div class="grid lg:grid-cols-12 gap-8 items-start">
-            <!-- フェーズカード -->
-            <div class="lg:col-span-4 space-y-3">
+        <div class="flex flex-col gap-6">
+            <!-- 上：グラフ画像（大きく表示） -->
+            <div class="bg-white rounded-xl p-2">
+                <div class="relative overflow-hidden rounded-lg">
+                    <img src="スクリーンショット 2026-03-21 163709.png" alt="施術サイクルとホルモンバランス"
+                        class="w-full h-auto border border-pink-50"
+                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                    <div class="hidden items-center justify-center w-full h-32 bg-gray-50 text-gray-300 border border-dashed border-gray-200 text-sm">画像が見つかりません</div>
+                    <div class="graph-highlight absolute top-0 left-0 h-full pointer-events-none transition-opacity duration-300 opacity-100" style="width:33.39%; box-shadow: inset 0 0 0 3px #8B7FD6;"></div>
+                    <div class="graph-highlight absolute top-0 h-full pointer-events-none transition-opacity duration-300 opacity-0" style="left:33.39%; width:34.79%; box-shadow: inset 0 0 0 3px #8B7FD6;"></div>
+                    <div class="graph-highlight absolute top-0 h-full pointer-events-none transition-opacity duration-300 opacity-0" style="left:68.18%; width:31.82%; box-shadow: inset 0 0 0 3px #8B7FD6;"></div>
+                </div>
+            </div>
+
+            <!-- フェーズカード（横並び） -->
+            <div class="grid sm:grid-cols-3 gap-3">
                 <button onclick="updatePhase(0)" id="btn-phase-1"
                     class="phase-card w-full text-left p-4 rounded-xl border border-pink-50 hover:border-pink-200 transition active-phase">
                     <div class="flex justify-between items-center mb-1">
@@ -110,10 +123,6 @@
                     </div>
                     <h4 class="font-bold text-base text-[#5D4037]">土台期</h4>
                     <p class="text-xs text-gray-400 mt-0.5">初回〜4回目 / 週1回ペース</p>
-                    <div class="mt-2 flex flex-wrap gap-1">
-                        <span class="plan-badge">♾️ サブスク</span>
-                        <span class="plan-badge">🎫 回数券</span>
-                    </div>
                 </button>
                 <button onclick="updatePhase(1)" id="btn-phase-2"
                     class="phase-card w-full text-left p-4 rounded-xl border border-pink-50 hover:border-pink-200 transition">
@@ -123,9 +132,6 @@
                     </div>
                     <h4 class="font-bold text-base text-[#5D4037]">調整期</h4>
                     <p class="text-xs text-gray-400 mt-0.5">5〜8回目 / 月2回ペース</p>
-                    <div class="mt-2 flex flex-wrap gap-1">
-                        <span class="plan-badge">♾️ サブスク</span>
-                    </div>
                 </button>
                 <button onclick="updatePhase(2)" id="btn-phase-3"
                     class="phase-card w-full text-left p-4 rounded-xl border border-pink-50 hover:border-pink-200 transition">
@@ -135,38 +141,32 @@
                     </div>
                     <h4 class="font-bold text-base text-[#5D4037]">メンテナンス期</h4>
                     <p class="text-xs text-gray-400 mt-0.5">9回目以降 / 月1回ペース</p>
-                    <div class="mt-2 flex flex-wrap gap-1">
-                        <span class="plan-badge">♾️ サブスク</span>
-                    </div>
                 </button>
             </div>
 
-            <!-- 右：グラフ＋詳細 -->
-            <div class="lg:col-span-8 flex flex-col gap-4">
-                <div class="bg-white rounded-xl p-2">
-                    <img src="スクリーンショット 2026-03-21 163709.png" alt="施術サイクルとホルモンバランス"
-                        class="w-full h-auto rounded-lg shadow-sm border border-pink-50"
-                        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                    <div class="hidden items-center justify-center w-full h-32 bg-gray-50 text-gray-300 rounded-lg border border-dashed border-gray-200 text-sm">画像が見つかりません</div>
-                </div>
-
-                <div class="bg-[#FFF5F7] p-5 rounded-xl border-l-4 border-[#F4A6B6] shadow-inner">
-                    <h4 id="detail-title" class="font-bold text-base text-[#5D4037] mb-2">土台期</h4>
-                    <p id="detail-text" class="text-sm text-[#8E5E65] leading-relaxed"></p>
-                    <div class="border-t border-dashed border-pink-200 pt-3 mt-3">
-                        <div class="flex items-start gap-3">
-                            <span class="bg-[#F4A6B6] text-white text-xs font-bold px-2 py-1 rounded mt-0.5 whitespace-nowrap">Point</span>
-                            <p id="detail-point" class="text-sm text-[#5D4037]"></p>
-                        </div>
+            <!-- 詳細 -->
+            <div class="bg-[#FFF5F7] p-5 rounded-xl border-l-4 border-[#F4A6B6] shadow-inner">
+                <h4 id="detail-title" class="font-bold text-base text-[#5D4037] mb-2">土台期</h4>
+                <p id="detail-text" class="text-sm text-[#8E5E65] leading-relaxed"></p>
+                <div class="border-t border-dashed border-pink-200 pt-3 mt-3">
+                    <div class="flex items-start gap-3">
+                        <span class="bg-[#F4A6B6] text-white text-xs font-bold px-2 py-1 rounded mt-0.5 whitespace-nowrap">Point</span>
+                        <p id="detail-point" class="text-sm text-[#5D4037]"></p>
                     </div>
                 </div>
-
-                <div class="bg-pink-50 border border-pink-200 rounded-xl p-4 flex items-start gap-3">
-                    <span class="text-xl shrink-0">🌸</span>
-                    <p class="text-sm text-[#8E5E65] leading-relaxed">
-                        <span class="font-bold text-[#E98B9F]">月経前</span>は女性ホルモンの影響で身体がむくみやすいため、<span class="font-bold">オイルの追加がオススメ</span>です。
-                    </p>
+                <div class="border-t border-dashed border-pink-200 pt-3 mt-3">
+                    <div class="flex items-start gap-3">
+                        <span class="bg-[#E98B9F] text-white text-xs font-bold px-2 py-1 rounded mt-0.5 whitespace-nowrap">🌟 おすすめ</span>
+                        <p id="detail-plan" class="text-sm font-bold text-[#E98B9F]"></p>
+                    </div>
                 </div>
+            </div>
+
+            <div class="bg-pink-50 border border-pink-200 rounded-xl p-4 flex items-start gap-3">
+                <span class="text-xl shrink-0">🌸</span>
+                <p class="text-sm text-[#8E5E65] leading-relaxed">
+                    <span class="font-bold text-[#E98B9F]">月経前</span>は女性ホルモンの影響で身体がむくみやすいため、<span class="font-bold">オイルの追加がオススメ</span>です。
+                </p>
             </div>
         </div>
     </section>
@@ -481,9 +481,9 @@
     };
 
     const phaseDetails = [
-        { title: "土台期",        desc: "まずは凝りをほぐして土台の仙骨を整える時期です。筋肉の硬さと骨格の歪みをしっかりケアし、正しいバランスの基礎を作ります。間隔を空けずに施術することが理想的です。",  point: "初回〜4回目：可動域・歪みをチェック。仙骨周りを集中的にケアし、自律神経やホルモンバランスを整える土台を作ります。" },
-        { title: "調整期",        desc: "整えた土台を調節して定着させる時期です。筋肉がほぐれやすくなっているため、悪い姿勢のクセを抜き、良い状態を体に覚え込ませていきます。",                               point: "5〜8回目：ほぐれが良くなってきたタイミング。「猫背矯正」などを組み合わせ、整った状態を「定着」させていきましょう。" },
-        { title: "メンテナンス期", desc: "整えて定着した後に定期的にメンテナンスをする時期です。良い状態を維持し、日々の疲れをリセット。不調が出にくい身体をキープします。",                                     point: "9回目以降：月に1回程度のペースで、その時の身体の状態に合わせたケアを継続しましょう。" }
+        { title: "土台期",        desc: "まずは凝りをほぐして土台の仙骨を整える時期です。筋肉の硬さと骨格の歪みをしっかりケアし、正しいバランスの基礎を作ります。間隔を空けずに施術することが理想的です。",  point: "初回〜4回目：可動域・歪みをチェック。仙骨周りを集中的にケアし、自律神経やホルモンバランスを整える土台を作ります。", plan: "" },
+        { title: "調整期",        desc: "整えた土台を調節して定着させる時期です。筋肉がほぐれやすくなっているため、悪い姿勢のクセを抜き、良い状態を体に覚え込ませていきます。",                               point: "5〜8回目：ほぐれが良くなってきたタイミング。「猫背矯正」などを組み合わせ、整った状態を「定着」させていきましょう。", plan: "整った状態を定着させるこの時期は「スタンダードプラン」がおすすめです。" },
+        { title: "メンテナンス期", desc: "整えて定着した後に定期的にメンテナンスをする時期です。良い状態を維持し、日々の疲れをリセット。不調が出にくい身体をキープします。",                                     point: "9回目以降：月に1回程度のペースで、その時の身体の状態に合わせたケアを継続しましょう。", plan: "状態を維持するこの時期は「スペシャルプラン」がおすすめです。" }
     ];
 
     let currentCourse = 80;
@@ -565,10 +565,17 @@
     // ===== フェーズ更新 =====
     function updatePhase(index) {
         document.querySelectorAll('.phase-card').forEach((btn, i) => btn.classList.toggle('active-phase', i === index));
+        document.querySelectorAll('.graph-highlight').forEach((el, i) => {
+            el.classList.toggle('opacity-100', i === index);
+            el.classList.toggle('opacity-0', i !== index);
+        });
         const d = phaseDetails[index];
         document.getElementById('detail-title').innerText = d.title;
         document.getElementById('detail-text').innerText  = d.desc;
         document.getElementById('detail-point').innerText = d.point;
+        document.getElementById('detail-plan').innerText  = d.plan;
+        const planBlock = document.getElementById('detail-plan').closest('.border-t');
+        if (planBlock) planBlock.style.display = d.plan ? '' : 'none';
     }
 </script>
 </body>
